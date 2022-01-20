@@ -1,0 +1,16 @@
+
+body{
+	min-height: 100vh;
+	background-color: #22151F;
+    background-image: url(../images/revised_mado_login_bg.jpg);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+@media (max-width: 767px) {
+	#content-wrapper
+	{
+		padding-left: 0px;
+	}
+}
+.choose-content{display:flex;font-size:1.6em}.choose-content.cell-select{flex-direction:column;background:#413a3a}.choose-content.cell-select .card-body{background:#fed552;background:-moz-linear-gradient(-45deg,#fed552 0%,#fff 91%);background:-webkit-linear-gradient(-45deg,#fed552 0%,#fff 91%);background:linear-gradient(135deg,#fed552 0%,#fff 91%);filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#fed552', endColorstr='#ffffff',GradientType=1 );justify-content:center}.choose-content.board-select{width:96%;float:right;height:78vh;margin-top:3vh;justify-content:space-evenly;flex-direction:row}.choose-content.board-select .buttons{display:flex;flex-direction:column;justify-content:space-between}.choose-content.board-select .buttons.choose-queue .btn{font-size:1.5em;padding:2rem .5rem}.choose-content.board-select .buttons .btn.choose-count span{float:right;padding:0 .5rem;border-radius:1rem;margin-right:.5rem}.choose-content h1,table.data-table tbody td .btn .pit-icon i{font-size:3em}.choose-content .btn.machine-names{font-size:1.2em}.choose-content .btn{font-size:2em;padding:1.5rem .5rem}.choose-content .card-body{margin:.2em 1em 1.5em;padding:0 1.5em}

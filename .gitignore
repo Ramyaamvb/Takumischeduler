@@ -1,0 +1,45 @@
+.DS_Store
+
+assets/videos/*
+assets/img/machines/*
+videos/*
+assets/project_files/*
+files/*
+assets/organization/*
+
+json_data/*.json
+Screen Grabs/*
+application/Screen Grabs2/*
+
+application/cache/*
+!application/cache/index.html
+
+application/logs/*
+!application/logs/index.html
+
+!application/*/.htaccess
+
+composer.lock
+
+node_modules
+
+user_guide_src/build/*
+user_guide_src/cilexer/build/*
+user_guide_src/cilexer/dist/*
+user_guide_src/cilexer/pycilexer.egg-info/*
+/vendor/
+
+# IDE Files
+#-------------------------
+/nbproject/
+.idea/*
+
+## Sublime Text cache files
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
+/tests/tests/
+/tests/results/
+Screen Grabs
