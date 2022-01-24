@@ -54,7 +54,7 @@ function scheduledjobs(machineid)
         "serverSide": false, // for process server side
         "filter": true, // this is for disable filter (search box)
         "orderMulti": false, // for disable multiple column at once
-        "pageLength": 16,	
+        "pageLength": 22,	
 		"bLengthChange": false,		
 		/* "columnDefs": [
             {
@@ -97,15 +97,15 @@ function scheduledjobs(machineid)
 							return data.substring(0,12);
 						  }
 			},			
-			{ "data": "schedulestart", "name": "partid", "autoWidth": true },
-			{ "data": "cmoName", "name": "customer", "autoWidth": true,
-				"render": function (data, type, row) {
-							return data.substring(0,12);
-						  }	
+			
+			{ "data": "customername", "name": "customername", "autoWidth": true,
+					
 			},			
 			{ "data": "Week", "name": "Week", "autoWidth": true },
 			{ "data": "operationid", "name": "operationid", "autoWidth": true },
 			{ "data": "quantity", "name": "orderqty", "autoWidth": true },
+			{ "data": "schedulestart", "name": "partid", "autoWidth": true },
+			{ "data": "prodduedate", "name": "prodduedate", "autoWidth": true },
 			
 			{ "data": "Material_status", "name": "Material_status", "autoWidth": true },
 			{ "data": "materialid", "name": "materialid", "autoWidth": true,				

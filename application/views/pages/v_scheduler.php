@@ -25,6 +25,29 @@ $week_num = array_slice($week_nums,0,3);
 //var_dump($week_num);
 ?>
 <style>
+.dataTables_scrollBody::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    background-color: #F5F5F5;
+    border-radius: 10px;
+}
+
+.dataTables_scrollBody::-webkit-scrollbar {
+    width: 6px;
+    background-color: #F5F5F5;
+}
+
+.dataTables_scrollBody::-webkit-scrollbar-thumb {
+    background-color: #777;
+    border-radius: 10px;
+}
+.dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody {
+  overflow-y: scroll !important;
+}
+.dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody ::-webkit-scrollbar-track{
+  
+   width: 6px;
+    background-color: #F5F5F5;
+}
 div.pager {
     text-align: center;
     margin: 1em 0;
@@ -165,10 +188,14 @@ table.material_table tbody th
 	border-bottom:1px solid #442136;	
 	padding-bottom:1px;
 }
+
 .material_info
 {
 	height:46vh;
 	overflow:scroll;
+}
+.material_info::-webkit-scrollbar {
+  display: none;
 }
 .material_info thead th { position: sticky; top: 0; z-index: 1;background-color:#442136;color:white;}
 
@@ -245,9 +272,7 @@ table.dataTable thead th, table.dataTable thead td
 {
 	padding-right:10px;
 }
-.dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody {
-  overflow-y: scroll !important;
-}
+
 
 .cross_height_4
 {
@@ -261,7 +286,7 @@ table.dataTable thead th, table.dataTable thead td
 {
 	padding-bottom:3.51rem;
 }
-.modal-xl{max-width:1036px}}@media (min-width:1200px){.modal-xl{max-width:1140px}}
+.modal-xl{max-width:1350px}}@media (min-width:1200px){.modal-xl{max-width:1140px}}
 .modal-header
 {
 justify-content:none;
@@ -443,19 +468,20 @@ table.dataTable td.dataTables_empty {
 						<button id="schedule_submit" class="btn btn-success text-light">Schedule</button>
 						<span class="chooseweek_msg text-danger"></span>
 					</div>
-					<div class="col-12 p-0 tablecontent" style="overflow:scroll;">						
+					<div class="col-12 p-0 tablecontent" style="overflow:hidden;">						
 						<table id="unschedule" clientidmode="Static" class="unschedule tablebody display nowrap hover w-100">
 						<thead>
 							<tr class="gridStyle">
 								<th></th>
 								<th style="width:90px">JobID</th>
 								<th style="width:90px">PartID</th>
-								<th style="width:90px">Production Date</th>
+								<th style="width:90px">Schedule Start</th>
 								<th>Customer</th>
 								<th>Ope. Id</th>								
 								<th>Production Qty</th>
 								<th>Est. Production Hrs</th>
 								<th>Material Status</th>
+								<th>Material Due</th>
 								<th>Material ID</th>
 								<th>Sheet Req.</th>
 								<th>PartDescription</th>
@@ -699,13 +725,14 @@ table.dataTable td.dataTables_empty {
 					<thead>
 						<tr class="gridStyle">
 						<th></th>
-							<th style="width:90px">JobID</th>
-							<th style="width:90px">PartID</th>
-							<th>Customer</th>
+							<th style="width:70px">JobID</th>
+							<th style="width:80px">PartID</th>
+							<th style="width:70px">Customer</th>
 							<th>Description</th>
 							<th>Ope. ID</th>
-							<th>Quantity</th>
-							<th>Schedule Date</th>
+							<th style="width:70px;text-align:center">Quantity</th>
+							<th style="width:80px">Scheduled Start</th>
+							<th style="width:80px">Prod due date</th>
 							<th>week</th>
 						</tr>
 					</thead>					

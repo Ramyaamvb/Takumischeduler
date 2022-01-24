@@ -8,6 +8,29 @@ foreach($machines as $k)
 }
 ?>
 <style>
+.dataTables_scrollBody::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    background-color: #F5F5F5;
+    border-radius: 10px;
+}
+
+.dataTables_scrollBody::-webkit-scrollbar {
+    width: 6px;
+    background-color: #F5F5F5;
+}
+
+.dataTables_scrollBody::-webkit-scrollbar-thumb {
+    background-color: #777;
+    border-radius: 10px;
+}
+.dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody {
+  overflow-y: scroll !important;
+}
+.dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody ::-webkit-scrollbar-track{
+  
+   width: 6px;
+    background-color: #F5F5F5;
+}
 div.pager {
     text-align: center;
     margin: 1em 0;
@@ -317,7 +340,8 @@ table.dataTable td.dataTables_empty {
 								<th style="width:90px">JobID</th>
 								<th style="width:90px">PartID</th>
 								<th>PartDescription</th>
-								<th style="width:90px">Production Date</th>
+								<th style="width:90px">Schedule Start</th>
+								<th style="width:90px">Prod Duedate</th>
 								<th>Customer</th>
 								<th>Week</th>								
 								<th>Ope. Id</th>								
@@ -344,192 +368,5 @@ table.dataTable td.dataTables_empty {
 			
 </div>
 
-<div class="modal fade" id="jobcardModal" tabindex="-1" role="dialog" aria-labelledby="jobcardModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-        <div class="modal-content">
-            <div class="modal-header" style="justify-content:right">
-                <!--<button type="button" class="btn btn-warning btn-lg float-left" data-dismiss="modal"><i class="fa fa-times"></i></button>-->
-                <h2 class="modal-title" id="jobcardModalLabel"><span id=""></span></h2>
-                <button type="button" class="btn btn-warning btn-lg float-right" data-bs-dismiss="modal"><i class="fa fa-times"></i></button>
-            </div>
-            <div class="modal-body row">                
-                <div class="col-12">
-                    <table class="table table-striped">
-                        <tr id="tc_row_status"><th>JobCard</th></tr>
-                    </table>
-                </div>
-                <div class="col-lg-6">
-                    <table class=" table table-striped">
-                        <tr><th>CUSTOMER</th><td id="tc_customer"></td></tr>
-                        <tr><th>JOB ID</th><td><span id="tc_jobid"></span><button class="btn float-right" id="jobclipboard" data-clipboard-text=""><i class="fa fa-clipboard"></i></button></td></tr>
-                        <tr><th>PART NUMBER</th><td><span id="tc_partnum"></span><button class="btn float-right" id="clipboard" data-clipboard-text=""><i class="fa fa-clipboard"></i></button></td></tr>
-                        <tr><th>DESCRIPTION</th><td id="tc_description"></td></tr>
-                        <tr><th>ORDER QTY.</th><td id="tc_orderqty"></td></tr>
-                        <tr><th>DELIVERY DATE</th><td id="tc_delivery"></td></tr>
-                 </table>
-                </div>
-                
-                <div class="col-lg-3">
-                    
-					<div>
-						<table id="mat" class= "table table-striped"><thead><tr><th>Material ID</th><th>Sheet</th><th>Nesting ID</th></tr> </thead>
-							<tbody></tbody>
-						</table>
-						<table id="matdue" class= "table table-striped"><thead><tr><th>POI</th><th>DueDate</th><th>Receipt Date</th></tr> </thead>
-							<tbody></tbody>
-						</table>
-					</div>
-                </div>
-				<div class="col-3">
-					<div id="tc_image" class="text-center">
-                        <a id="tc_image_a" href="" data-lightbox=""><img id="tc_image_img" src="" class="img-fluid"></a>
-                    </div>
-				</div>
-                <div class="col-12">
-                    <table id="detail" class= "table table-striped"><thead><tr><th>JobOperationid</th><th>Process</th><th>Cycletime</th><th>Machine</th></tr></thead>
-					<tbody></tbody>
-					</table>
-                </div>
 
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="modal fade" id="scheduledModal" tabindex="-1" role="dialog" aria-labelledby="scheduledModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-        <div class="modal-content">
-            <div class="modal-header" style="justify-content:right">                
-                <div class="row m-0 w-100">           
-					<div class="col-10 p-0 text-center">
-					<div class="unschedule_udpate btn btn-warning btn-sm float-left">Unschedule</div>
-					<h4 class="modal-title" id="materialModalLabel"><span id="jc_machine" class="text-light" ></span></h4>
-					
-					</div>
-					<div class="col-2 p-0">
-					<button type="button" class="btn btn-warning btn-lg float-right" data-bs-dismiss="modal"><i class="fa fa-times"></i></button>
-					</div>
-				</div>
-            </div>
-            <div class="modal-body row">
-               <div class="col-12">
-                    <!--<table id="jobdetail" class="table table-striped">
-						<thead>
-							<tr id="tc_row_status"><th>JobID</th><th>PartID</th><th>Customer</th><th>Description</th><th>Order Quantity</th></tr>
-						</thead>
-						
-                        <tbody>
-						</tbody>
-						
-                    </table>
-					<select id="cell-filter mb-1">
-							<option value="">--select--</option>
-							<option value="week50">week50</option>
-							<option >week51</option>
-							<option>week52</option>
-							<option>week01</option>							
-						</select>-->
-					<table clientidmode="Static" class="jobdetails hover w-100">
-					<thead>
-						<tr class="gridStyle">
-						<th></th>
-							<th style="width:90px">JobID</th>
-							<th style="width:90px">PartID</th>
-							<th>Customer</th>
-							<th>Description</th>
-							<th>Ope. ID</th>
-							<th>Quantity</th>
-							<th>Schedule Date</th>
-							<th>week</th>
-						</tr>
-					</thead>					
-					<tbody></tbody>
-				</table>
-				<input type="hidden" id="testunique">
-				<div style='margin-top: 10px;' id='pagination'></div>
-                </div>                
-
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="materialModal" tabindex="-1" role="dialog" aria-labelledby="materialModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-        <div class="modal-content">
-            <div class="modal-header w-100">     
-				<div class="row m-0 w-100">           
-					<div class="col-10 p-0 text-center"><h4 class="modal-title" id="materialModalLabel"><span id="tc_machine" class="text-light" ></span></h4>
-					</div>
-					<div class="col-2 p-0">
-					<button type="button" class="btn btn-warning btn-lg float-right" data-bs-dismiss="modal"><i class="fa fa-times"></i></button>
-					</div>
-				</div>
-            </div>			
-            <div class="modal-body row">  			   
-				<div class="col-12">
-					<table class="table table-striped">
-						<tr id="tc_row_status" class="bg-info"><th>Material Due In</th></tr>
-					</table>
-				</div>			
-               <div class="col-12">
-                    <table id="mat_detail" class="table table-striped">
-						<thead>
-							<tr id="tc_row_status"><th>Purchase Order ID</th><th>Part Revision</th><th>Sheets</th><th>Due Date</th></tr>
-						</thead>
-						
-                        <tbody>
-						</tbody>
-						
-                    </table>
-                </div>                
-				<div class="col-12">
-					<table class="table table-striped">
-						<tr id="tc_row_status" class="bg-info"><th>Jobs</th></tr>
-					</table>
-				</div>
-				<div class="col-12">
-                    <table id="mat_job_detail" class="table table-striped">
-						<thead>
-							<tr id="tc_row_status"><th>JobID</th><th>PartID</th><th>Customer</th><th>Schedule Date</th><th>Sheet Required</th></tr>
-						</thead>
-						
-                        <tbody>
-						</tbody>
-						
-                    </table>
-                </div> 
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="machineupdateModal" tabindex="-1" role="dialog" aria-labelledby="machineupdateModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
-        <div class="modal-content bg-secondary">
-            <div class="modal-header w-100">     
-					<div class="col-12 p-0 text-center">
-						<span style="font-size:1.5rem;" id="tc_machine" class="text-light" >Change Machine Name</span>					
-					<button type="button" class="btn btn-warning btn-lg float-right" data-bs-dismiss="modal"><i class="fa fa-times"></i></button>					
-					</div>
-            </div>			
-            <div class="modal-body row m-0">  			   
-				<div class="col-12">
-					<table class="table table-striped">
-						<tr id="tc_row_status" class="">
-							<th><select style="width:250px;height:37px"class="form-select form-select-md select-text"></select></th>
-							<th><button class="btn btn-info update_machine" data-jobid="" data-uniqueid="">Update</button></th>
-						</tr>
-					</table>
-					<!--<div class="machines row m-0 w-100">
-						<div class="col-6 p-0"></div>
-						<div class="col-6"><button class="btn btn-info update_machine" data-jobid="" data-uniqueid="">Update</button></div>
-					</div>	-->
-					</div>
-					<input type="hidden">
-				</div>			
-                
-            </div>
-        </div>
-    </div>
-</div>

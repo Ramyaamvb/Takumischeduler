@@ -37,7 +37,7 @@ class Scheduler_model extends CI_Model {
 		if($material_type=='all'){$materialtype='';}
 		else{$materialtype="AND jmmPartID='".str_replace("'", '"', $material_type)."'";}
 			
-		$query = $this->m1db->query("Select jmpJobID as jobid,jmpPartID as partid,jmpPartShortDescription AS partdesc,cmoName AS customer,jmmPartID AS materialid,cast(( ujmmLength* ujmmWidth * jmmEstimatedQuantity )/3456 as decimal(10,3)) AS sheetrequired,xaqUniqueID,CASE WHEN uajIssuedToJob IS NOT NULL OR imtPartTransactionID IS NOT NULL THEN 'GREEN' WHEN rmlReceiptID is not null OR unjProcessedComplete = -1 OR jmmReceivedComplete = -1 THEN 'ORANGE' ELSE 'RED' END AS 'Material_status',format(jmpScheduledStartDate,'yyyy-MM-dd') as schedulestart, jmoJobOperationID as operationid, jmpProductionQuantity,cast((jmpProductionQuantity* jmoProductionStandard)/60 as decimal(10,3)) as Estimatedprodhrs, xaqDescription,CASE WHEN ujmpbucketweek IS NOT NULL THEN 'op2' ELSE '' END AS checkoperation from Jobs 
+		$query = $this->m1db->query("Select jmpJobID as jobid,jmpPartID as partid,jmpPartShortDescription AS partdesc,cmoName AS customer,jmmPartID AS materialid,cast(( ujmmLength* ujmmWidth * jmmEstimatedQuantity )/3456 as decimal(10,3)) AS sheetrequired,xaqUniqueID,CASE WHEN uajIssuedToJob IS NOT NULL OR imtPartTransactionID IS NOT NULL THEN 'GREEN' WHEN rmlReceiptID is not null OR unjProcessedComplete = -1 OR jmmReceivedComplete = -1 THEN 'ORANGE' ELSE 'RED' END AS 'Material_status',format(jmpScheduledStartDate,'yyyy-MM-dd') as schedulestart, jmoJobOperationID as operationid, jmpProductionQuantity,cast((jmpProductionQuantity* jmoProductionStandard)/60 as decimal(10,3)) as Estimatedprodhrs, xaqDescription,CASE WHEN ujmpbucketweek IS NOT NULL THEN 'op2' ELSE '' END AS checkoperation,CASE WHEN ujmpnestingjobid <>'' THEN ujmpnestingjobid WHEN ujmpnestingjobid = '' THEN FORMAT(pmlduedate,'yyyy-MM-dd')   ELSE 'nonesting' END AS materialdue  from Jobs 
 		LEFT outer join partrevisions on jmpPartID = imrPartID and jmpPartRevisionID = imrPartRevisionID 
 		Left Outer Join JobOperations on JMOJOBID = JMPJOBID and JMOJOBASSEMBLYID = 0 
 		left outer join workcentermachines on xaqWorkCenterID = jmoWorkCenterID and xaqWorkcenterMachineID = jmoWorkCenterMachineID  
@@ -46,6 +46,7 @@ class Scheduler_model extends CI_Model {
 		outer apply (Select top 1 imttransactiondate,imtPartTransactionID from PartTransactions where imtTransactionType =2 and imtInventoryQuantityReceived > 0 and imtJobID = jmpJobID )z 
 		outer apply(Select top 1 jmmReceivedComplete ,jmmPartID , jmmPartShortDescription , rmlReceiptID, ujmmLength, ujmmWidth , jmmEstimatedQuantity from jobmaterials Left Outer Join ReceiptLines on RMLJOBID = JMMJOBID and RMLJOBASSEMBLYID = JMMJOBASSEMBLYID and RMLJOBMATERIALID = JMMJOBMATERIALID where jmmJobID = jmpJobID and jmmJobAssemblyID = 0 order by jmmJobMaterialID DESC  )A 
 		outer apply (Select max(uajIssuedToJob) as uajIssuedToJob from uLotNumJobs where uajJobID = jmpJobID )C  
+		OUTER apply(SELECT TOP 1 pmlduedate from PurchaseOrderLines WHERE pmlJobID = jmpJobID ORDER BY pmlcreateddate desc )D
 		where ujmobucketweek is null and jmpProductionComplete <> -1 and jmoQuantityComplete = 0 and jmoProductionComplete <> -1 and jmpQuantityShipped = 0 AND 
 		not EXISTS (Select pmlSalesOrderID from PurchaseOrderLines where pmlJobID = jmpJobID and pmlJobType = 2) AND 
 		not exists (Select lmltimecardid from timecardlines where lmljobid = jmpjobid) AND 
@@ -91,6 +92,21 @@ ABLPARTREVISIONID = IMRPARTREVISIONID
 where uimrStockType = 'P' and ablPartBinID like 'S%'
 Group By imrPartID , uimcUoM ORDER BY imrpartid");
 		return $query->result();
+	}
+	function material_startweekdate()
+	{
+		
+		$query = $this->m1db->query("Select imrPartID as material, CASE WHEN (SheetsOnHand - sheetsused) /CASE uimcUoM WHEN 'MM' THEN 87782 ELSE 3456 END <0 THEN 0 ELSE (SheetsOnHand - sheetsused) /CASE uimcUoM WHEN 'MM' THEN 87782 ELSE 3456 END END as SheetsOnHand, uimcUoM FROM (
+Select imrPartID , sum(imrSheetSizeX * imrSheetSizeY * ablQuantityOnHand) as SheetsOnHand, IMPPARTCLASSID from Parts
+Left Outer Join PartRevisions on IMRPARTID = IMPPARTID Left Outer Join LotNumbers on ABLPARTID = IMRPARTID AND
+ABLPARTREVISIONID = IMRPARTREVISIONID
+where uimrStockType = 'P' and ablPartBinID like 'S%'
+Group By imrPartID ,IMPPARTCLASSID)a
+Left Outer Join PartClasses on IMPPARTCLASSID = IMCPARTCLASSID
+OUTER apply( Select CAST(SUM(ujmmLength * ujmmWidth * jmmEstimatedQuantity) as float) as sheetsused from jobs Left Outer Join JobMaterials on JMMJOBID = JMPJOBID and JMMJOBASSEMBLYID = 0 where jmmPartID = imrPartID and not exists (Select * from parttransactions where imtJobid = jmpJobID and imrPartID = jmpPartID ) and exists (Select * from JobOperations WHERE JMOJOBID = JMPJOBID and JMOJOBASSEMBLYID = 0 and ujmobucketweek <= DATEADD(dd, 0 - (1 + 5 + DATEPART(dw, GETDATE())) % 7, GETDATE()) ) )B
+ORDER BY imrPartID");
+		return $query->result();
+		
 	}
 	function materials()
 	{
@@ -256,7 +272,7 @@ Where jmmJobID = '".$jobid."'");
 	{
 		$machine_id = $_POST['machineid'];
 
-		$query = $this->m1db->query("Select CONCAT('week',DATEPART(ISO_WEEK, ujmobucketweek)) AS Week,ujmobucketweek,cmoName,jmmPartShortDescription AS materialdesc,jmmPartID AS materialid,cast(( ujmmLength* ujmmWidth * jmmEstimatedQuantity )/3456 as decimal(10,3)) AS sheetrequired,xaqUniqueID,ujmpNestingJobID,rtrim(jmpJobID) as jmpjobid,rtrim(jmpPartID) as jmppartid ,jmpPartShortDescription, RTRIM(jmmPartShortDescription) as jmmPartShortDescription, CASE WHEN uajIssuedToJob IS NOT NULL OR imtPartTransactionID IS NOT NULL THEN 'GREEN' WHEN rmlReceiptID is not null OR unjProcessedComplete = -1 OR jmmReceivedComplete = -1 THEN 'ORANGE' ELSE 'RED' END AS 'Material_status',format(jmpScheduledStartDate,'yyyy-MM-dd') as schedulestart, jmoJobOperationID as operationid, FORMAT(jmpProductionQuantity,'#') as quantity, FORMAT(jmoProductionStandard,'#') as prodstandard, dbo.MinutestoHoursMins(jmpProductionQuantity* jmoProductionStandard* CASE when jmmQuantityPerAssembly <> 0 THEN jmmQuantityPerAssembly ELSE (1/ NULLIF(ujmmQuantityPartsPerUnit,0)) END)  as jmoEstimatedProductionHours, xaqDescription from Jobs 
+		$query = $this->m1db->query("Select CONCAT('week',DATEPART(ISO_WEEK, ujmobucketweek)) AS Week,ujmobucketweek,cmoOrganizationID as customerid,cmoName as customername,jmmPartShortDescription AS materialdesc,jmmPartID AS materialid,cast(( ujmmLength* ujmmWidth * jmmEstimatedQuantity )/3456 as decimal(10,3)) AS sheetrequired,xaqUniqueID,ujmpNestingJobID,rtrim(jmpJobID) as jmpjobid,rtrim(jmpPartID) as jmppartid ,jmpPartShortDescription, RTRIM(jmmPartShortDescription) as jmmPartShortDescription, CASE WHEN uajIssuedToJob IS NOT NULL OR imtPartTransactionID IS NOT NULL THEN 'GREEN' WHEN rmlReceiptID is not null OR unjProcessedComplete = -1 OR jmmReceivedComplete = -1 THEN 'ORANGE' ELSE 'RED' END AS 'Material_status',format(jmpScheduledStartDate,'dd-MM-yyyy') as schedulestart,FORMAT(jmpProductionDueDate,'dd-MM-yyyy') as prodduedate,  jmoJobOperationID as operationid, FORMAT(jmpProductionQuantity,'#') as quantity, FORMAT(jmoProductionStandard,'#') as prodstandard, dbo.MinutestoHoursMins(jmpProductionQuantity* jmoProductionStandard* CASE when jmmQuantityPerAssembly <> 0 THEN jmmQuantityPerAssembly ELSE (1/ NULLIF(ujmmQuantityPartsPerUnit,0)) END)  as jmoEstimatedProductionHours, xaqDescription from Jobs 
 		LEFT outer join partrevisions on jmpPartID = imrPartID and jmpPartRevisionID = imrPartRevisionID 
 		Left Outer Join JobOperations on JMOJOBID = JMPJOBID and JMOJOBASSEMBLYID = 0 
 		left outer join workcentermachines on xaqWorkCenterID = jmoWorkCenterID and xaqWorkcenterMachineID = jmoWorkCenterMachineID  

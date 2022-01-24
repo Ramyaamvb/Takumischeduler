@@ -154,7 +154,7 @@ function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
         "serverSide": false, // for process server side
         "filter": true, // this is for disable filter (search box)
         "orderMulti": false, // for disable multiple column at once
-        "pageLength": 15,	
+        "pageLength": 22,	
 		"bLengthChange": false,		
 		"columnDefs": [
             {
@@ -183,6 +183,7 @@ function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
             "datatype": "json",
 			"dataSrc": ""
         },
+		
         "columns": [
 			 {
                 data: '',
@@ -212,6 +213,7 @@ function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
 						  }
 			},
 			{ "data": "Material_status", "name": "Material_status", "autoWidth": true },
+			{ "data": "materialdue", "name": "materialdue", "autoWidth": true },
 			{ "data": "materialid", "name": "materialid", "autoWidth": true,				
 						  
 			},
@@ -231,11 +233,16 @@ function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
 		$(row).addClass("schedule_jobs");
 		$(row).attr('data-id',data.jobid).addClass("open_jobcard");
 		
-		}
+		},
+		"initComplete": function(settings, json) {
+			$('body').find('#unschedule').addClass("scrollbar");
+		},
 		
 
     });
+	
 }
+
 function week(year,month,day) {
     function serial(days) { return 86400000*days; }
     function dateserial(year,month,day) { return (new Date(year,month-1,day).valueOf()); }
@@ -248,7 +255,7 @@ function week(year,month,day) {
 
 $(".tablebody").each(function() {
 	
-	var cell = 'mill5';
+	var cell = 'twin';
 	var machineid ='all';
 	var materialtype ='all';
 	var material_status='all';      
@@ -470,7 +477,7 @@ function material_onhand_check()
 {
 	$.ajax({
 		type: "POST",
-		url: baseUrl+'/material/',
+		url: baseUrl+'/material_startweekdate/',
 		data: {			
 		},
 		dataType:'json',
@@ -575,9 +582,10 @@ function material_used()
 				//console.log((Base64.encode(res.imrPartID))+'-'+res.sheetweek);
 //console.log('sheet_onhand_'+week[1]+'_'+Base64.encode(res.imrPartID));
 				
-				material_onhand();	
+			
 				
-			})	
+			})
+			material_onhand();				
 		},
 		error: function() {
 		}
@@ -753,6 +761,9 @@ $("body").on('click', '.update_machine', function(e) {
 	})
 	
 })
+$('.hidemachineupdate').click(function(){
+	$("#machineupdateModal").modal('hide');
+})
 
 var clipboard = new ClipboardJS('#clipboard',{
 		container: document.getElementById('jobcardModal')
@@ -798,7 +809,10 @@ function scheduled_jobs_update(where)
                 "targets": [ 5 ],
                 "visible": false,                
             },
-            
+			{ 
+				"width": 20, "targets": [6] 
+			},			
+			{"className": "dt-center", "targets": [6]}            
         ],
         "ajax": {
             "url": baseUrl+'/scheduledjob/',
@@ -819,19 +833,14 @@ function scheduled_jobs_update(where)
             },
             { "data": "jmpjobid", "name": "Jobid", "autoWidth": true },
             { "data": "jmppartid", "name": "partid", "autoWidth": true },
-			{ "data": "cmoName", "name": "customer", "autoWidth": true,
-				"render": function (data, type, row) {
-							return data.substring(0,12);
-						  }	
-			},
+			{ "data": "customerid", "name": "customerid", "autoWidth": true,},
 			{ "data": "jmpPartShortDescription", "name": "description", "autoWidth": true,
-				"render": function (data, type, row) {
-							return data.substring(0,12);
-						  }
+				
 			},
 			{ "data": "operationid", "name": "operationid", "autoWidth": true },
 			{ "data": "quantity", "name": "orderqty", "autoWidth": true },
 			{ "data": "schedulestart", "name": "schedulestart", "autoWidth": true },
+			{ "data": "prodduedate", "name": "prodduedate", "autoWidth": true },
 			{ "data": "Week", "name": "Week", "autoWidth": true },
 			
         ]
