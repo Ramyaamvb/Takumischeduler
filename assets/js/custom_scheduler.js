@@ -531,9 +531,9 @@ function material_onhand()
 				var secondrow_sheetused = $('.sheet_used_'+secondrow[1]+'_'+Base64.encode(res.material)).attr('data-sheetused');
 				
 				/** assign value for next rows **/				
-				console.log($('.sheet_onhand_'+firstrowweek[1]+'_'+Base64.encode(res.material)).attr('data-sheetonhand'));
-				console.log(firstrowweek_sheetused);
-				console.log($('.sheet_onhand_'+firstrowweek[1]+'_'+Base64.encode(res.material)).attr('data-sheetonhand')-firstrowweek_sheetused);
+				//console.log($('.sheet_onhand_'+firstrowweek[1]+'_'+Base64.encode(res.material)).attr('data-sheetonhand'));
+				//console.log(firstrowweek_sheetused);
+				//console.log($('.sheet_onhand_'+firstrowweek[1]+'_'+Base64.encode(res.material)).attr('data-sheetonhand')-firstrowweek_sheetused);
 				$('.sheet_onhand_'+secondrow[1]+'_'+Base64.encode(res.material)).html(
 				
 					parseFloat(parseFloat($('.sheet_onhand_'+firstrowweek[1]+'_'+Base64.encode(res.material)).attr('data-sheetonhand')) - parseFloat(firstrowweek_sheetused)).toFixed(2)
