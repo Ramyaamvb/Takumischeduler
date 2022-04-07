@@ -154,12 +154,12 @@ function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
         "serverSide": false, // for process server side
         "filter": true, // this is for disable filter (search box)
         "orderMulti": false, // for disable multiple column at once
-        "pageLength": 22,	
-		"bLengthChange": false,		
+        "pageLength": 20,	
+		"bLengthChange": false,				
 		"columnDefs": [
             {
                     
-				"targets": [ 13 ],
+				"targets": [ 14 ],
                 "visible": false,      
             },
 			{
@@ -169,6 +169,9 @@ function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
 			}
             
         ],
+		"oLanguage": {
+		   "sInfo" : " Total _TOTAL_ jobs",// text you want show for info section
+		},
 		fixedColumns:   {
             left: 2
         },	
@@ -191,17 +194,19 @@ function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
                 defaultContent: '',
                 orderable: false,				
             },
+			{ "data": "customer", "name": "description", "autoWidth": true},
             { "data": "jobid", "name": "Jobid", "autoWidth": true },
             { "data": "partid", "name": "partid", "autoWidth": true },
-			{ "data": "schedulestart", "name": "customer", "autoWidth": true },
-			{ "data": "customer", "name": "description", "autoWidth": true
-			},
-			{ "data": "operationid", "name": "operationid", "autoWidth": true,
+			{ "data": "partdesc", "name": "partdesc", "autoWidth": true },
+			{ "data": "proweekno", "name": "proweekno", "autoWidth": true,
 				"render": function (data, type, row) {
-							if(row.checkoperation!='') { return  Math.round(data)+'<span class="text-info"> Next OP</span>'; }
-							else { return  Math.round(data); }
+							if(row.proweekno!=null)
+								return 'Week'+data;
+							else
+								return data;
 						  }
-			},			
+			},
+			{ "data": "schedulestart", "name": "customer", "autoWidth": true },
 			{ "data": "jmpProductionQuantity", "name": "jmpProductionQuantity", "autoWidth": true,
 				"render": function (data, type, row) {
 							return  Math.round(data);
@@ -212,18 +217,18 @@ function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
 							return  parseFloat(data).toFixed(2);
 						  }
 			},
+			{ "data": "operationid", "name": "operationid", "autoWidth": true,
+				"render": function (data, type, row) {
+							if(row.checkoperation!='') { return  Math.round(data)+'<span class="text-info"> Next OP</span>'; }
+							else { return  Math.round(data); }
+						  }
+			},
 			{ "data": "Material_status", "name": "Material_status", "autoWidth": true },
 			{ "data": "materialdue", "name": "materialdue", "autoWidth": true },
-			{ "data": "materialid", "name": "materialid", "autoWidth": true,				
-						  
-			},
-			{ "data": "sheetrequired", "name": "sheetrequired", "autoWidth": true ,
-			},
-			{ "data": "partdesc", "name": "partdesc", "autoWidth": true },
+			{ "data": "materialid", "name": "materialid", "autoWidth": true},
+			{ "data": "sheetrequired", "name": "sheetrequired", "autoWidth": true },			
 			{ "data": "machine", "name": "machine", "autoWidth": true },
 			{ "data": "xaqUniqueID", "name": "xaqUniqueID", "autoWidth": true },
-			
-			
 			
         ],
 		createdRow: function( row, data, dataIndex ) {
@@ -477,7 +482,7 @@ function material_onhand_check()
 {
 	$.ajax({
 		type: "POST",
-		url: baseUrl+'/material_startweekdate/',
+		url: baseUrl+'/material/',
 		data: {			
 		},
 		dataType:'json',
@@ -805,10 +810,7 @@ function scheduled_jobs_update(where)
         "orderMulti": false, // for disable multiple column at once
         "pageLength": 12,		
 		"columnDefs": [
-            {
-                "targets": [ 5 ],
-                "visible": false,                
-            },
+            
 			{ 
 				"width": 20, "targets": [6] 
 			},			
@@ -835,13 +837,23 @@ function scheduled_jobs_update(where)
             { "data": "jmppartid", "name": "partid", "autoWidth": true },
 			{ "data": "customerid", "name": "customerid", "autoWidth": true,},
 			{ "data": "jmpPartShortDescription", "name": "description", "autoWidth": true,
-				
+				"render": function (data, type, row) {
+							return data.substring(0,12);
+						  }
+			},
+			{ "data": "proweekno", "name": "proweekno", "autoWidth": true ,
+				"render": function (data, type, row) {
+							if(row.proweekno != null)
+								return 'Week '+data;
+							else
+								return '';
+						  }
 			},
 			{ "data": "operationid", "name": "operationid", "autoWidth": true },
 			{ "data": "quantity", "name": "orderqty", "autoWidth": true },
 			{ "data": "schedulestart", "name": "schedulestart", "autoWidth": true },
-			{ "data": "prodduedate", "name": "prodduedate", "autoWidth": true },
-			{ "data": "Week", "name": "Week", "autoWidth": true },
+			{ "data": "prodduedate", "name": "prodduedate", "autoWidth": true }
+			
 			
         ]
 

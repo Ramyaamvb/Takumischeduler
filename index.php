@@ -1,5 +1,5 @@
 <?php
-define('APP_VERSION', '2.0.2');
+define('APP_VERSION', '2.0.6');
 
 echo $BASEPATH ;
 ini_set('max_execution_time', 300);

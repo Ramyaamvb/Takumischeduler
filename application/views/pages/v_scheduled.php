@@ -332,7 +332,7 @@ table.dataTable td.dataTables_empty {
 						<button id="" class="unschedule_udpate btn btn-success text-light">UnSchedule</button>
 						<span class="chooseweek_msg text-danger"></span>
 					</div>
-					<div class="col-12 p-0 tablecontent" style="overflow:scroll;">						
+					<div class="col-12 p-0 tablecontent" >						
 						<table id="scheduledjob" clientidmode="Static" class="tablebody display nowrap hover w-100">
 						<thead>
 							<tr class="gridStyle">

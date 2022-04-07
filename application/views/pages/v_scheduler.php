@@ -286,7 +286,7 @@ table.dataTable thead th, table.dataTable thead td
 {
 	padding-bottom:3.51rem;
 }
-.modal-xl{max-width:1350px}}@media (min-width:1200px){.modal-xl{max-width:1140px}}
+.modal-xl{max-width:1250px}}@media (min-width:1200px){.modal-xl{max-width:1140px}}
 .modal-header
 {
 justify-content:none;
@@ -473,18 +473,19 @@ table.dataTable td.dataTables_empty {
 						<thead>
 							<tr class="gridStyle">
 								<th></th>
+								<th>Customer</th>
 								<th style="width:90px">JobID</th>
 								<th style="width:90px">PartID</th>
+								<th>PartDescription</th>
+								<th>ProWeekNo</th>
 								<th style="width:90px">Schedule Start</th>
-								<th>Customer</th>
-								<th>Ope. Id</th>								
 								<th>Production Qty</th>
 								<th>Est. Production Hrs</th>
+								<th>Ope. Id</th>
 								<th>Material Status</th>
 								<th>Material Due</th>
 								<th>Material ID</th>
-								<th>Sheet Req.</th>
-								<th>PartDescription</th>
+								<th>Sheet Req.</th>								
 								<th>Machine Name</th>
 								<th>uniqueid</th>
 								
@@ -729,11 +730,12 @@ table.dataTable td.dataTables_empty {
 							<th style="width:80px">PartID</th>
 							<th style="width:70px">Customer</th>
 							<th>Description</th>
+							<th style="width:70px">Proweekno</th>
 							<th>Ope. ID</th>
 							<th style="width:70px;text-align:center">Quantity</th>
-							<th style="width:80px">Scheduled Start</th>
-							<th style="width:80px">Prod due date</th>
-							<th>week</th>
+							<th style="width:80px">Scheduled</th>
+							<th style="width:80px">Prod date</th>
+							
 						</tr>
 					</thead>					
 					<tbody></tbody>

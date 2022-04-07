@@ -54,7 +54,7 @@ function scheduledjobs(machineid)
         "serverSide": false, // for process server side
         "filter": true, // this is for disable filter (search box)
         "orderMulti": false, // for disable multiple column at once
-        "pageLength": 22,	
+        "pageLength": 16,	
 		"bLengthChange": false,		
 		/* "columnDefs": [
             {

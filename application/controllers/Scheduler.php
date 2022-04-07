@@ -73,12 +73,12 @@ class Scheduler extends MY_Controller {
 		print json_encode($row);
 		exit;
 	}
-	function material_startweekdate() /** get material list - startweekdate**/
-	{
+	/* function material_startweekdate() /** get material list - startweekdate**/
+	/*{
 		$row = $this->scheduler->material_startweekdate();
 		print json_encode($row);
 		exit;
-	}
+	} */
 	function material() /*Material sheet on hand **/
 	{
 		$row = $this->scheduler->materials();
