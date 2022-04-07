@@ -147,7 +147,7 @@ function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
 	
 	
 	
-	$("#unschedule").DataTable({
+	DT1 = $("#unschedule").DataTable({
 	"destroy": true,		
 		"scrollX":     true,	
         "processing": false, // for show progress bar
@@ -159,7 +159,7 @@ function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
 		"columnDefs": [
             {
                     
-				"targets": [ 14 ],
+				"targets": [ 15 ],
                 "visible": false,      
             },
 			{
@@ -185,8 +185,7 @@ function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
 			"data": {"cell" : cell,"machineid":machineid,"material_status":material_status,"materialtype":materialtype,},
             "datatype": "json",
 			"dataSrc": ""
-        },
-		
+        },				
         "columns": [
 			 {
                 data: '',
@@ -245,6 +244,13 @@ function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
 		
 
     });
+	$(".selectAll").on( "click", function(e) {
+		if ($(this).is( ":checked" )) {
+		  DT1.rows({page:'current'}  ).select();        
+		} else {
+		  DT1.rows({page:'current'}  ).deselect(); 
+		}
+	});
 	
 }
 
@@ -992,7 +998,7 @@ function updatebucketweek(ids,mids)
 			scheduledjobs_update();
 			$('.machine_hrs_calc').html('');
 			
-			
+			$('.selectAll').prop('checked',false);
 		}
 	}) 
 }

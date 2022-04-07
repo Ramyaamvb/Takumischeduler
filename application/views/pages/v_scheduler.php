@@ -468,7 +468,8 @@ table.dataTable td.dataTables_empty {
 						<button id="schedule_submit" class="btn btn-success text-light">Schedule</button>
 						<span class="chooseweek_msg text-danger"></span>
 					</div>
-					<div class="col-12 p-0 tablecontent" style="overflow:hidden;">						
+					<div class="col-12 p-0 tablecontent" style="overflow:hidden;">			
+					<input type="checkbox" class="selectAll schedule_jobs " name="selectAll" value="all"> Select All					
 						<table id="unschedule" clientidmode="Static" class="unschedule tablebody display nowrap hover w-100">
 						<thead>
 							<tr class="gridStyle">
