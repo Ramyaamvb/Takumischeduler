@@ -226,7 +226,7 @@ left outer join organizations on jmpCustomerOrganizationID=cmoOrganizationID WHE
 		$data['jobdata'] = $jobdata->row_array(); 
 		
 		$joboperationdata = $this->m1db->query("SELECT jmpjobid AS jobid,jmojobassemblyid AS assemblyid,jmojoboperationid AS oprationid,jmoprocessshortdescription AS processdesc,format(jmoProductionStandard,'#.#') AS cycletime,jmoworkcentermachineid,jmoworkcenterid AS workcenterid, 
-jmoestimatedproductionhours,omdsalesorderid,xaqUniqueID,xaqDescription,jmouniqueid,case when jmoworkcenterid IN ('MILL1','MILL2','MILL3','MILL4','MILL5','TWIN','DECO') THEN '1' ELSE '' end as operation FROM Jobs left outer join joboperations on jmpjobid=jmojobid 
+jmoestimatedproductionhours,omdsalesorderid,xaqUniqueID,xaqDescription,jmouniqueid,case when jmoworkcenterid IN ('MILL1','MILL2','MILL3','MILL4','MILL5','TWIN','DECO','PLAS') THEN '1' ELSE '' end as operation FROM Jobs left outer join joboperations on jmpjobid=jmojobid 
 left outer join organizations on jmpCustomerOrganizationID=cmoOrganizationID 
 Left Outer Join SalesOrderJobLinks on JMPJOBID = OMJJOBID 
 Left Outer Join SalesOrderDeliveries on OMJSALESORDERID = OMDSALESORDERID and OMJSALESORDERLINEID = OMDSALESORDERLINEID AND omdSalesOrderDeliveryID = CASE omjSalesOrderDeliveryID WHEN 0 THEN 1 ELSE 
