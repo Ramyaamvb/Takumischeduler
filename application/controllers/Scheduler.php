@@ -5,18 +5,17 @@ class Scheduler extends MY_Controller {
 	public function __construct() {
 		parent::__construct(); 
 		
-		      
-		$this->load->model('scheduler_model', 'scheduler');  
-		
 		$this->D['v'] = '';	
 		
 		$this->D['title'] = 'Takumi Scheduler';	
 		
-		$this->D['cell'] = $this->scheduler->machine_cell();	
+		$this->D['cell'] = $this->base->machine_cell();	
+		
+		$this->D['machines'] = $this->base->cell_machines();
 		
 		$this->D['materials'] = $this->scheduler->material_list();
 		
-		$this->D['machines'] = $this->scheduler->cell_machines();
+		
     }
 
     public function index()
