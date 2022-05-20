@@ -176,6 +176,99 @@ table.machineset td img
 }
 .choose-content{display:flex;font-size:1.6em}.choose-content.cell-select{flex-direction:column;background:#413a3a}.choose-content.cell-select .card-body{background:#fed552;background:-moz-linear-gradient(-45deg,#fed552 0%,#fff 91%);background:-webkit-linear-gradient(-45deg,#fed552 0%,#fff 91%);background:linear-gradient(135deg,#fed552 0%,#fff 91%);filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#fed552', endColorstr='#ffffff',GradientType=1 );justify-content:center}.choose-content.board-select{width:96%;float:right;height:78vh;margin-top:3vh;justify-content:space-evenly;flex-direction:row}.choose-content.board-select .buttons{display:flex;flex-direction:column;justify-content:space-between}.choose-content.board-select .buttons.choose-queue .btn{font-size:1.5em;padding:2rem .5rem}.choose-content.board-select .buttons .btn.choose-count span{float:right;padding:0 .5rem;border-radius:1rem;margin-right:.5rem}.choose-content h1,table.data-table tbody td .btn .pit-icon i{font-size:3em}.choose-content .btn.machine-names{font-size:1.2em}.choose-content .btn{font-size:2em;padding:1.5rem .5rem}.choose-content .card-body{margin:.2em 1em 1.5em;padding:0 1.5em}
 
-@media (min-width: 1305px) and (min-height: 734px) {
+#unscheduledjobs_filter
+{
+	padding-right:11px;
+}
+table.schedulejobs td
+{
+	border-right:1px solid #442136;
+}
+table.schedulejobs th
+{
+	border-right:1px solid #442136;
+}
+table.schedulejobs thead tr th
+{
+	background-color:#442136;
+	color:white;
+	text-align:center;
+}
+
+table.schedulejobs thead tr th:first-child
+{
+	padding:5px;
+}
+table.schedulejobs thead tr th select
+{
+	width:90%;
+	border-radius:6px;
 	
+}
+.schedulejobs td.crossed
+{
+   background-image: linear-gradient(to bottom right,  transparent calc(50% - 1px), #3e1b30, transparent calc(50% + 1px)); 
+}
+.schedulejobs td.crossedleft
+{
+   background-image: linear-gradient(to bottom left,  transparent calc(50% - 1px), #3e1b30, transparent calc(50% + 1px)); 
+}
+.crossed
+{
+   background-image: linear-gradient(to bottom right,  transparent calc(50% - 1px), #3e1b30, transparent calc(50% + 1px)); 
+}
+.crossedleft
+{
+   background-image: linear-gradient(to bottom left,  transparent calc(50% - 1px), #3e1b30, transparent calc(50% + 1px)); 
+}
+.machines-4
+{
+	color:#442136;
+	height:164px;
+	border-bottom:1px solid #442136;
+}
+.machines-4  th{
+	padding-left:10px;
+	font-size:1.25rem
+}
+.machines-5
+{
+	color:#442136;
+	height:131px;
+	border-bottom:1px solid #442136;
+}
+.machines-5  th{
+	padding-left:10px;
+	font-size:1.25rem
+}
+.filtersclass
+{
+	border-right:2px solid #442136;
+}
+.filtersclass select{
+	width:100%;
+	border-radius:5px;
+	height:40px;
+	
+}
+.filtersclass select:hover {
+    box-shadow: 0 0 10px 100px #7fb1c3 inset;
+	background-color:white;
+	border-radius:10px;
+	
+}
+
+ .green:hover {background: green;}
+
+.header-filter{
+	background-color:#F68D2E;
+	padding-top:10px;
+	padding-bottom:10px;
+}
+.calculationheader
+{
+	background-color:#F68D2E;
+	color:white;
+	font-size:1.5rem;
+	padding:2px;
 }

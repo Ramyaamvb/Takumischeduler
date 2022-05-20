@@ -173,7 +173,7 @@ function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
 		   "sInfo" : " Total _TOTAL_ jobs",// text you want show for info section
 		},
 		fixedColumns:   {
-            left: 2
+            //left: 2
         },	
 		select: {
             style:    'multi',
@@ -196,10 +196,14 @@ function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
 			{ "data": "customer", "name": "description", "autoWidth": true},
             { "data": "jobid", "name": "Jobid", "autoWidth": true },
             { "data": "partid", "name": "partid", "autoWidth": true },
-			{ "data": "partdesc", "name": "partdesc", "autoWidth": true },
+			{ "data": "partdesc", "name": "partdesc", "autoWidth": true ,
+			"render": function (data, type, row) {
+							return data.substring(0,12);
+						  }
+			},
 			{ "data": "proweekno", "name": "proweekno", "autoWidth": true,
 				"render": function (data, type, row) {
-							if(row.proweekno!=null)
+							if(row.proweekno!='')
 								return 'Week'+data;
 							else
 								return data;
@@ -661,12 +665,8 @@ function openjobcard(data)
 					$('#matdue').append('<tr><td>'+ res_material.POI +'</td><td>'+ res_material.duedate +'</td><td>'+ res_material.receiptdate +'</td></tr>'); 
 				detailarray = res.joboperationdata;	
 				$("#detail > tbody").empty();			
-				detailarray.forEach(function(row){
-					if(row.operation==1)
-						operation = '<button type="btn" class="updatemachine btn btn-info" data-uniqueid="'+row.jmouniqueid+'" data-cell="'+row.workcenterid+'" data-jobid="'+data+'" data-machine="'+row.uniqueid +'">Update</button>';
-					else
-						operation='';
-					$('#detail').append('<tr><td>'+ row.oprationid +'</td><td>'+ row.processdesc +'</td><td>'+ row.cycletime +'</td><td>'+row.machine+'  '+operation+'</td></tr>');
+				detailarray.forEach(function(row){					
+					$('#detail').append('<tr><td>'+ row.oprationid +'</td><td>'+ row.processdesc +'</td><td>'+ row.cycletime +'</td><td>'+row.machine+'</td></tr>');
 				});
 			
 			
@@ -677,18 +677,12 @@ function openjobcard(data)
 	})
 }
 $("body").on('click', '.updatemachine', function(e) {
+	$(".select-text").empty();
 	e.preventDefault();		
-	uniqueid = $(this).attr('data-uniqueid');
-	jobid = $(this).attr('data-jobid');	
-	
-	
-	changecell($(this).attr('data-cell') );
-	chagemachine( $(this).attr('data-cell'),$(this).attr('data-machine') );
-	$('.update_machine').attr('data-jobid',jobid);
-	$('.update_machine').attr('data-uniqueid',uniqueid);
 	$("#machineupdateModal").modal('show');
+	changecell();
 })
-function changecell(data)
+function changecell()
 {
 		
 	$.ajax({
@@ -698,7 +692,7 @@ function changecell(data)
 		dataType:'json',
 		success: function(res){	
 		let sel = document.querySelector('.select-celltext');
-		$(".select-celltext").empty();
+		$(".select-celltext").empty();				
 		res.forEach((users)=>{
 			  let opt = document.createElement('option');
 			  opt.value=users.m_cell_m1name;
@@ -706,22 +700,17 @@ function changecell(data)
 			  opt.appendChild(mcellname);
 			  sel.appendChild(opt);
 		  });
-		 $('.select-celltext option[value='+data+']').attr('selected','selected');		 
-			
+		  
+		 $('.select-celltext option[value='+$('.cell_select').val()+']').attr('selected','selected');	
 		}
-	})		
-	
-	
+	})	
 }
-function chagemachine(data,datamachine)
-{
-	if(datamachine==null)
-	{
-		var selectop = '';
-	}
-	else{
-		var selectop = datamachine;
-	}
+$("body").on('click', '.select-celltext', function(e) {	
+	//$('.updatemachine').attr('data-cell',$(this).val());
+	changemachine($(this).val());
+})
+function changemachine(data)
+{	
 	$.ajax({
 		type: "POST",
 		url: baseUrl+'/getmachines/',
@@ -735,39 +724,44 @@ function chagemachine(data,datamachine)
 			  
 		res.forEach((users)=>{			
 			  let opt = document.createElement('option');
-			  opt.value=users.xaquniqueid;
+			  opt.value=users.machineid;
+			  opt.setAttribute('data-processid', users.processid);
+			  opt.setAttribute('data-processdesc', users.processdesc);
 			  let userName=document.createTextNode(users.xaqDescription);
 			  opt.appendChild(userName);
 			  sel.appendChild(opt);
 		  });
-		 $('.select-text option[value='+selectop+']').attr('selected','selected');		 	
+		 
 		}
 	})	
 }
-$("body").on('click', '.select-celltext', function(e) {	
-	//$('.updatemachine').attr('data-cell',$(this).val());
-	chagemachine($(this).val());
-})
+
 $("body").on('click', '.update_machine', function(e) {	
 	
 	e.preventDefault();	
-	
-	uniqueid = $(this).attr('data-uniqueid');
-	jobid = $(this).attr('data-jobid');
+	var table = $('#unschedule').DataTable();
+		var cellsSelected = table.rows({ selected: true }).data();
+		cellsSelected[0];
+		
+		theArray=[];
+		var myValues= $('#unschedule').DataTable();
+		var ids = $.map(myValues.rows('.selected').data(), function (item) {					
+		return {
+				  ids: item.jobid+' '+item.operationid
+				  
+				};		
+		});	
 	$.ajax({
 		type: "POST",
 		url: baseUrl+'/updatemachine/',
 		data: {
-			workcenterid : $('.select-celltext').val(),
-			machineid : $('.select-text').val(),
-			uniqueid : uniqueid
+			ids:ids,workcenter:$('.select-celltext').val(),machine:$('.select-text').val(),processid:$('.select-text').find(':selected').attr('data-processid'),processdesc:$('.select-text').find(':selected').attr('data-processdesc')
 		},
 		dataType:'json',
 		success: function(res){	
 			
-			$("#machineupdateModal").modal('hide');
+			$("#machineupdateModal").modal('hide');			
 			
-			openjobcard(jobid);
 		}
 	})
 	

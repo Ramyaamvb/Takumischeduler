@@ -48,122 +48,7 @@ $week_num = array_slice($week_nums,0,3);
    width: 6px;
     background-color: #F5F5F5;
 }
-div.pager {
-    text-align: center;
-    margin: 1em 0;
-}
 
-div.pager span {
-    display: inline-block;
-    width: 1.8em;
-    height: 1.8em;
-    line-height: 1.8;
-    text-align: center;
-    cursor: pointer;
-    background: #000;
-    color: #fff;
-    margin-right: 0.5em;
-}
-
-div.pager span.active {
-    background: #c00;
-}
-#unscheduledjobs_filter
-{
-	padding-right:11px;
-}
-table.schedulejobs td
-{
-	border-right:1px solid #442136;
-}
-table.schedulejobs th
-{
-	border-right:1px solid #442136;
-}
-table.schedulejobs thead tr th
-{
-	background-color:#442136;
-	color:white;
-	text-align:center;
-}
-
-table.schedulejobs thead tr th:first-child
-{
-	padding:5px;
-}
-table.schedulejobs thead tr th select
-{
-	width:90%;
-	border-radius:6px;
-	
-}
-.schedulejobs td.crossed
-{
-   background-image: linear-gradient(to bottom right,  transparent calc(50% - 1px), #3e1b30, transparent calc(50% + 1px)); 
-}
-.schedulejobs td.crossedleft
-{
-   background-image: linear-gradient(to bottom left,  transparent calc(50% - 1px), #3e1b30, transparent calc(50% + 1px)); 
-}
-.crossed
-{
-   background-image: linear-gradient(to bottom right,  transparent calc(50% - 1px), #3e1b30, transparent calc(50% + 1px)); 
-}
-.crossedleft
-{
-   background-image: linear-gradient(to bottom left,  transparent calc(50% - 1px), #3e1b30, transparent calc(50% + 1px)); 
-}
-.machines-4
-{
-	color:#442136;
-	height:164px;
-	border-bottom:1px solid #442136;
-}
-.machines-4  th{
-	padding-left:10px;
-	font-size:1.5rem
-}
-.machines-5
-{
-	color:#442136;
-	height:131px;
-	border-bottom:1px solid #442136;
-}
-.machines-5  th{
-	padding-left:10px;
-	font-size:1.5rem
-}
-.filtersclass
-{
-	border-right:2px solid #442136;
-}
-.filtersclass select{
-	width:100%;
-	border-radius:5px;
-	height:40px;
-	
-}
-.filtersclass select:hover {
-    box-shadow: 0 0 10px 100px #7fb1c3 inset;
-	background-color:white;
-	border-radius:10px;
-	
-}
-
- .green:hover {background: green;}
-
-.header-filter{
-	background-color:#F68D2E;
-	padding-top:10px;
-	padding-bottom:10px;
-}
-.calculationheader
-{
-	background-color:#F68D2E;
-	color:white;
-	font-size:1.5rem;
-	padding:2px;
-}
 .material_table td.crossed
 {
    background-image: linear-gradient(to bottom right,  transparent calc(50% - 1px), #3e1b30, transparent calc(50% + 1px)); 
@@ -469,7 +354,17 @@ table.dataTable td.dataTables_empty {
 						<span class="chooseweek_msg text-danger"></span>
 					</div>
 					<div class="col-12 p-0 tablecontent" style="overflow:hidden;">			
-					<input type="checkbox" class="selectAll schedule_jobs " name="selectAll" value="all"> Select All					
+						<div class="row w-100 m-0">
+							<div class="col-6 pl-2">
+								<input type="checkbox" class="selectAll schedule_jobs " name="selectAll" value="all"> Select All					
+							</div>
+							<div class="col-6 text-right">
+								<button class="btn btn-info btn-sm updatemachine">
+									Change Machine
+								</button>
+							</div>
+						</div>
+						
 						<table id="unschedule" clientidmode="Static" class="unschedule tablebody display nowrap hover w-100">
 						<thead>
 							<tr class="gridStyle">
@@ -809,25 +704,27 @@ table.dataTable td.dataTables_empty {
 					<button type="button" class="btn btn-warning btn-lg float-right hidemachineupdate"><i class="fa fa-times"></i></button>					
 					</div>
             </div>			
-            <div class="modal-body row m-0">  			   
+            <div class="modal-body row m-0 mb-1">  			   
 				<div class="col-12 p-0">
-					<div class="select-cell ml-3">
-							<div><select style="width:250px;height:37px" class="form-select form-select-md select-celltext"></select></div>
+					<div class="row w-100 m-0">
+						<div class="col-4 text-light">	
+							Choose Cell
+						</div>
+						<div class="col-8">	
+							<select style="width:250px;height:37px" class="form-select form-select-md select-celltext"></select>
+						</div>
 					</div>
-					<table class="table table-striped">
-						
-						<tr id="tc_row_status" class="">
-							<th><select style="width:250px;height:37px"class="form-select form-select-md select-text"></select></th>
-							<th class=""><button class="btn btn-info update_machine" data-jobid="" data-uniqueid="">Update</button></th>							
-						</tr>
-					</table>
-					<!--<div class="machines row m-0 w-100">
-						<div class="col-6 p-0"></div>
-						<div class="col-6"><button class="btn btn-info update_machine" data-jobid="" data-uniqueid="">Update</button></div>
-					</div>	-->
+					<div class="row w-100 m-0 mt-3">
+						<div class="col-4 text-light">	
+							Choose Machine
+						</div>
+						<div class="col-8">	
+							<select style="width:250px;height:37px"class="form-select form-select-md select-text"></select>
+							<button class="btn btn-info update_machine mt-4" data-jobid="" data-uniqueid="">Update</button>
+						</div>
 					</div>
-					<input type="hidden">
-				</div>			
+				</div>
+			</div>			
                 
             </div>
         </div>

@@ -165,7 +165,7 @@ class Scheduler extends MY_Controller {
 	/** get machines for change machine name each job starts**/
 	function getcells()
 	{
-		$row = $this->scheduler->machine_cell();
+		$row = $this->base->machine_cell();
 		print json_encode($row);
 		exit;		
 	}	

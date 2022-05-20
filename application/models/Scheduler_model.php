@@ -7,28 +7,8 @@ class Scheduler_model extends CI_Model {
 		parent::__construct();
 		
 		$this->m1db = $this->load->database('M1', TRUE);
-	}
+	}	
 	
-	function machine_cell() {
-        
-        $ret = array();
-        
-                    
-        $querycell = $this->db->select('m_cell_name,m_cell_m1name')
-							->join('machine_cells','m_type_id=m_cell_type_id','left outer')
-							->where('m_cell_pit_show',1)
-							->get('machine_types');
-							
-		$ret = $querycell->result();						
-                
-        return $ret;
-    }	
-	function cell_machines()
-	{
-		$query = $this->db->query("SELECT machine_unique,machine_name,m_cell_m1name,case when m_cell_m1name IN ('TWIN','MILL3','MILL1','MILL5') then '5' when m_cell_m1name IN ('DECO','PLAS','MILL2','MILL4') THEN '4' ELSE '' END  AS totalmachine FROM machines LEFT OUTER JOIN machine_cells ON m_cell_id=machine_cell_id where m_cell_pit_show =1");
-		
-		return $query->result();
-	}
 	function unschedule_jobs($cell,$machineid,$material_type,$materialstatus)
 	{
 		if(($machineid=='all')|| ($machineid=='')){$machine_id='';}
@@ -37,7 +17,7 @@ class Scheduler_model extends CI_Model {
 		if($material_type=='all'){$materialtype='';}
 		else{$materialtype="AND jmmPartID='".str_replace("'", '"', $material_type)."'";}
 			
-		$query = $this->m1db->query("Select ujmpCurrentProdWeek AS proweekno,jmpJobID as jobid,jmpPartID as partid,jmpPartShortDescription AS partdesc,cmoName AS customer,jmmPartID AS materialid,cast(( ujmmLength* ujmmWidth * jmmEstimatedQuantity )/3456 as decimal(10,3)) AS sheetrequired,xaqUniqueID,CASE WHEN uajIssuedToJob IS NOT NULL OR imtPartTransactionID IS NOT NULL THEN 'GREEN' WHEN rmlReceiptID is not null OR unjProcessedComplete = -1 OR jmmReceivedComplete = -1 THEN 'ORANGE' ELSE 'RED' END AS 'Material_status',format(jmpScheduledStartDate,'yyyy-MM-dd') as schedulestart, jmoJobOperationID as operationid, jmpProductionQuantity,cast((jmpProductionQuantity* jmoProductionStandard)/60 as decimal(10,3)) as Estimatedprodhrs, xaqDescription,CASE WHEN ujmpbucketweek IS NOT NULL THEN 'op2' ELSE '' END AS checkoperation,CASE WHEN ujmpnestingjobid <>'' THEN ujmpnestingjobid WHEN ujmpnestingjobid = '' THEN FORMAT(pmlduedate,'yyyy-MM-dd')   ELSE 'nonesting' END AS materialdue  from Jobs 
+		$query = $this->m1db->query("Select rtrim(ujmpCurrentProdWeek) AS proweekno,jmpJobID as jobid,jmpPartID as partid,jmpPartShortDescription AS partdesc,cmoName AS customer,jmmPartID AS materialid,cast(( ujmmLength* ujmmWidth * jmmEstimatedQuantity )/3456 as decimal(10,3)) AS sheetrequired,xaqUniqueID,CASE WHEN uajIssuedToJob IS NOT NULL OR imtPartTransactionID IS NOT NULL THEN 'GREEN' WHEN rmlReceiptID is not null OR unjProcessedComplete = -1 OR jmmReceivedComplete = -1 THEN 'ORANGE' ELSE 'RED' END AS 'Material_status',format(jmpScheduledStartDate,'yyyy-MM-dd') as schedulestart, jmoJobOperationID as operationid, jmpProductionQuantity,cast((jmpProductionQuantity* jmoProductionStandard)/60 as decimal(10,3)) as Estimatedprodhrs, xaqDescription,CASE WHEN ujmpbucketweek IS NOT NULL THEN 'op2' ELSE '' END AS checkoperation,CASE WHEN ujmpnestingjobid <>'' THEN ujmpnestingjobid WHEN ujmpnestingjobid = '' THEN FORMAT(pmlduedate,'yyyy-MM-dd')   ELSE 'nonesting' END AS materialdue  from Jobs 
 		LEFT outer join partrevisions on jmpPartID = imrPartID and jmpPartRevisionID = imrPartRevisionID 
 		Left Outer Join JobOperations on JMOJOBID = JMPJOBID and JMOJOBASSEMBLYID = 0 
 		left outer join workcentermachines on xaqWorkCenterID = jmoWorkCenterID and xaqWorkcenterMachineID = jmoWorkCenterMachineID  
@@ -366,7 +346,9 @@ function unschedule_jobs_update()
 }
 function getmachines()
 {
-	$query = $this->m1db->select('xaquniqueid,xaqWorkCenterMachineID,xaqDescription')
+	$query = $this->m1db->select('xacShortDescription as processdesc,xawProcessID as processid,xaquniqueid,xaqWorkCenterMachineID,xaqDescription,xaqWorkCenterMachineID as machineid')
+						->join('WorkCenters','xawWorkCenterID = xaqWorkCenterID','left')
+						->join('Processes','xacProcessID=xawProcessID','left')
 						->where('xaqWorkCenterID',$_POST['workcenterid'])
 						->get('WorkCenterMachines');
 	
@@ -374,23 +356,26 @@ function getmachines()
 }
 function updatemachine()
 {
-
-	$query = $this->m1db->query("select xacShortDescription,xawProcessID from Workcenters left outer join processes on xacProcessID=xawProcessID where xawWorkCenterID='".$_POST['workcenterid']."'");
+	$data = $_POST['ids'];
+	
+	foreach($data as $k=>$v)
+	{
+		foreach($v as $ks=>$m)
+		{
 			
-	$processid = $query->row();
-	
-	$mquery = $this->m1db->query("select xaqWorkCenterMachineID from WorkCenterMachines where xaqUniqueID='".$_POST['machineid']."'");
+			$a = preg_split("~\s+~",$m);			
+			$jobid = $a[0];			
+			$joboperationid =  $a[1];
 			
-	$machineid = $mquery->row();
-	
-	
-	$this->m1db->set('jmoWorkCenterID', $_POST['workcenterid']);	
-	$this->m1db->set('jmoProcessID', $processid->xawProcessID);	
-	$this->m1db->set('jmoProcessShortDescription',$processid->xacShortDescription);	
-	$this->m1db->set('jmoworkcentermachineid', $machineid->xaqWorkCenterMachineID);	
-	$this->m1db->where('jmouniqueid', $_POST['uniqueid']);	
-	$this->m1db->update('joboperations');
-	
+			$this->m1db->set('jmoWorkCenterID', $_POST['workcenter']);	
+			$this->m1db->set('jmoProcessID', $_POST['processid']);	
+			$this->m1db->set('jmoProcessShortDescription',$_POST['processdesc']);	
+			$this->m1db->set('jmoworkcentermachineid', $_POST['machine']);	
+			$this->m1db->where('jmojobid', $jobid);	
+			$this->m1db->where('jmoJobOperationID', $joboperationid);	
+			$this->m1db->update('joboperations');
+		}
+	}			
 	return true;
 }
 }
