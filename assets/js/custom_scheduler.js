@@ -761,7 +761,11 @@ $("body").on('click', '.update_machine', function(e) {
 		success: function(res){	
 			
 			$("#machineupdateModal").modal('hide');			
-			
+			var cell = $('#cell_select').val();	
+			var machineid =$('#machines_select').val();
+			var material_status =$('#material_status').val();	
+			var materialtype=$('#materialtype').val();			
+			get_unschedule_jobs(cell,machineid,material_status,materialtype,1); 
 		}
 	})
 	
