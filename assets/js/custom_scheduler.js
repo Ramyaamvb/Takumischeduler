@@ -692,7 +692,8 @@ function changecell()
 		dataType:'json',
 		success: function(res){	
 		let sel = document.querySelector('.select-celltext');
-		$(".select-celltext").empty();				
+		$(".select-celltext").empty();		
+		$('.select-celltext').prepend('<option value="">--select--</option>');
 		res.forEach((users)=>{
 			  let opt = document.createElement('option');
 			  opt.value=users.m_cell_m1name;
