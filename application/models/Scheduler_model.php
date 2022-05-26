@@ -23,6 +23,8 @@ class Scheduler_model extends CI_Model {
 		left outer join workcentermachines on xaqWorkCenterID = jmoWorkCenterID and xaqWorkcenterMachineID = jmoWorkCenterMachineID  
 		LEFT OUTER JOIN Organizations ON jmpCustomerOrganizationID=cmoOrganizationID 
 		left outer join uNestingJob on ujmpNestingJobID = unjNestingJobID
+		LEFT OUTER JOIN SalesOrderJobLinks ON omjJobID = jmpjobid
+		LEFT OUTER JOIN SalesOrderDeliveries ON omjSalesOrderID =omdSalesOrderID AND omjSalesOrderLineID = omdSalesOrderLineID AND omjSalesOrderDeliveryID = omdSalesOrderDeliveryID 
 		outer apply (Select top 1 imttransactiondate,imtPartTransactionID from PartTransactions where imtTransactionType =2 and imtInventoryQuantityReceived > 0 and imtJobID = jmpJobID )z 
 		outer apply(Select top 1 jmmReceivedComplete ,jmmPartID , jmmPartShortDescription , rmlReceiptID, ujmmLength, ujmmWidth , jmmEstimatedQuantity from jobmaterials Left Outer Join ReceiptLines on RMLJOBID = JMMJOBID and RMLJOBASSEMBLYID = JMMJOBASSEMBLYID and RMLJOBMATERIALID = JMMJOBMATERIALID where jmmJobID = jmpJobID and jmmJobAssemblyID = 0 order by jmmJobMaterialID DESC  )A 
 		outer apply (Select max(uajIssuedToJob) as uajIssuedToJob from uLotNumJobs where uajJobID = jmpJobID )C  
@@ -31,7 +33,7 @@ class Scheduler_model extends CI_Model {
 		not EXISTS (Select pmlSalesOrderID from PurchaseOrderLines where pmlJobID = jmpJobID and pmlJobType = 2) AND 
 		not exists (Select lmltimecardid from timecardlines where lmljobid = jmpjobid) AND 
 		exists (Select omjjobid from SalesOrderJobLinks left outer join SalesOrderDeliveries on OMDSALESORDERID = OMJSALESORDERID and OMDSALESORDERLINEID = OMJSALESORDERLINEID Left Outer Join SalesOrderLines on OMDSALESORDERID = OMLSALESORDERID and OMDSALESORDERLINEID = OMLSALESORDERLINEID Left Outer Join SalesOrders on OMDSALESORDERID = OMPSALESORDERID where omdShippedComplete <> -1 and omdClosed <> -1 and omlClosed <> -1 and ompClosed <> -1 and omjJobID = jmpjobid   ) 
-		AND xaqworkcenterid = '".$cell."' $machine_id  $materialtype");
+		AND ( uomdCustomerDeliveryDate < DATEADD(wk,12,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) )) and xaqworkcenterid = '".$cell."' $machine_id  $materialtype");
 		
 		//print $this->m1db->last_query();
 		if($materialstatus!='all'){

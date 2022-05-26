@@ -78,7 +78,14 @@ class Planning extends MY_Controller {
 		exit;
 		
 	}
-	
+	function jobs_changeweek()
+	{
+		$row = $this->planning->jobs_changeweek();
+		
+		print json_encode($row);
+		
+		exit;
+	}
 	
 
 }

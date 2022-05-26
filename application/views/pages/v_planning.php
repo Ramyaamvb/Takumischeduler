@@ -44,6 +44,9 @@ table.setdividerheight td
 		table.setdividerheight td div{    
     height:100%;
 }
+#set_height::-webkit-scrollbar {
+    display: none;
+} 
 </style>
 <div class="pagedisplay row m-0" style="height:100vh">
 	<div class="filtersclass col-12 p-0">
@@ -63,7 +66,7 @@ table.setdividerheight td
 			</div>
 		</div>	
 		<div class="row m-0">
-			<div class="col-5 p-0" style="border-right:1px solid black" id="set_height">
+			<div class="col-5 p-0" style="border-right:1px solid black;overflow:scroll" id="set_height">
 			<table class="schedulejobs bucket"  id="machine_hours_row" width="100% " height="100%">
 			<thead>
 				<tr>
@@ -78,7 +81,7 @@ table.setdividerheight td
 				<?php foreach($machines as $k) { ?>
 					<tr class="machines-<?=$k->totalmachine;?>" data-machine="<?=$k->m_cell_m1name; ?>"> <!--scheduledjobs-->
 						<th class="scheduledjobs col-md-2 p-0" data-machine="<?=$k->m_cell_m1name; ?>" data-uniqueid="<?=$k->machine_unique;?>"  data-machine="<?=$k->m_cell_m1name; ?>" data-machinename="<?=$k->machine_name;?>">
-							<a href="<?=base_url('scheduler/scheduledjobs?c='.$k->m_cell_m1name.'&mid='.$k->machine_unique)?>" style="color:#442136"><?=$k->machine_name;?></a>
+							<?=$k->machine_name;?>
 							<div class="mt-2  clearcalc test_<?=$k->machine_unique;?>"></div>
 						</th>
 						<td>
@@ -431,7 +434,21 @@ table.setdividerheight td
                 <div class="row m-0 w-100">           
 					<div class="col-10 p-0 text-center">
 					<div class="getbacklogweekjobheader float-left"></div>
-					<h4 class="modal-title" id="getbacklogweekjobLabel"><span id="jc_machine" class="text-light" ></span></h4>
+					<h4 class="modal-title" id="getbacklogweekjobLabel">
+					<div class="row w-100">
+						<div class="col-3">
+						<select class="weekupdate form-control">
+							<option value="">-Change Week-</option>
+							<?php for($i=date('W');$i<=date('W')+7;$i++) {
+								echo '<option value="'.$i.'">week-'.$i.'</option>';
+							} ?>
+						</select>
+						</div>
+						<div class="col-3 text-left">
+						<button class="btn btn-info unschedule_udpate">Update</button>
+						</div>
+					</div>
+					</h4>
 					
 					</div>
 					<div class="col-2 p-0">
@@ -440,10 +457,11 @@ table.setdividerheight td
 				</div>
             </div>
             <div class="modal-body row">
-               <div class="col-12"> 
+               <div class="col-12"> 					
 					<table clientidmode="Static" class="table datatable hover w-100 getbacklogweekjobdatatable">
 					<thead>
-						<tr class="gridStyle">							
+						<tr class="gridStyle">	
+							<th></th>
 							<th style="width:70px">JobID</th>
 							<th style="width:80px">PartID</th>	
 							<th style="width:80px">Desc.</th>															

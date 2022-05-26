@@ -238,4 +238,20 @@ LEFT OUTER JOIN machine_cells ON m_cell_id=machine_cell_id where m_cell_pit_show
 	return $row;
 	
 	}
+	function jobs_changeweek()
+	{
+		$jobs = $_POST['jobs'];	
+		
+		foreach($jobs as $k=>$v)
+		{
+			$this->m1db->set('ujmpCurrentProdWeek',$_POST['week']);	
+			$this->m1db->where('jmpjobid', explode(" ",$v)[0]); 			
+			$this->m1db->update('jobs');
+		}
+		if($this->m1db->affected_rows())
+			return true;
+		else
+			return false;
+		
+	}
 }

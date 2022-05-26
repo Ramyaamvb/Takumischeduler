@@ -1,13 +1,18 @@
 (function($){
 
 document.getElementById("set_height").style.height = $(window).height()-70;	
+
 window.onresize = function (event) {
 document.getElementById("set_height").style.height = $(window).height()-70;	
     
 }
 
+window.addEventListener('resize', function(event) {
+    document.getElementById("set_height").style.height = $(window).height()-70;
+}, true);
 
-document.getElementById("set_height").style.height = $(window).height()-70;
+
+
 var getUrl = window.location;
 var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
 
@@ -36,9 +41,6 @@ function unplannedfilter()
 
 function get_unplannedjobs(cell,machineid,material_status,materialtype,reload)
 {	
-	
-	//table = $('#unschedule').DataTable();	 
-	//table.clear().destroy();
 	var numberOfRows = Math.floor(window.innerHeight);	
 	var height = (numberOfRows)-200;
 	
@@ -89,10 +91,13 @@ function get_unplannedjobs(cell,machineid,material_status,materialtype,reload)
 $("body").on('click', '.plan_jobs', function() {		
 	table = $('#unschedule').DataTable();	 
 	var rows = table.rows( '.selected' ).indexes();
+	console.log(rows);
+	console.log(rows.count());
 	if(rows.count()==0)
 		$('.clearcalc').html('');		
 	var res = getslectedrows();
 	appendhours(res);
+	
 	
 })
 $("body").on('click', '.selectAll', function() {	
@@ -107,6 +112,8 @@ $("body").on('click', '.selectAll', function() {
 	
 function appendhours(data)
 {	
+	console.log(data);
+	
 	$.each(data, function(i, res){	
 	$('.test_'+res.uniqueid).html('<h5 class="text-light bg-info pt-1 pb-1 text-center" style="font-size:20px;">'+parseFloat(res.prodhrs).toFixed(2)+'</h5>');		
 	})	
@@ -159,6 +166,7 @@ $('.planjobssubmit').click(function(e){
 })
 function getslectedrows()
 {
+	table = $('#unschedule').DataTable();
 	var myValues= $('#unschedule').DataTable();	
 	var rows = table.rows( '.selected' ).indexes();
 	var ids = $.map(myValues.rows(rows).data(), function (item) {
@@ -233,17 +241,16 @@ function test(machineid,week,actualvalue,cell)
 			error:function(){}
 	 });
 }
-$('.getbacklogjobs').click(function(){
+$('.getbacklogjobs').click(function(){	
 	$("#gethrscommitweekjob").modal('show');
 	gethrscommitweekjob($(this).attr('data-cell'));
 })
-$('.getjobshrscommit').click(function(){
+$('.getjobshrscommit').click(function(){	
 	$("#gethrscommitweekjob").modal('show');
 	gethrscommitweekjob($(this).attr('data-cell'),$(this).attr('data-machine'),$(this).attr('data-week'));
 })
 function gethrscommitweekjob(cell,machine='',week=false)
-{		
-console.log(machine);
+{	
 	table = $('.getbacklogweekjobdatatable').DataTable();
 	table.clear().destroy();		
 	$(".getbacklogweekjobdatatable").DataTable({		
@@ -255,16 +262,17 @@ console.log(machine);
         "pageLength": 15,		
 		//"order": [[ 7, "desc" ]],		
 		"dom": 'B<"toolbar">frtip',
-		/* "columnDefs": [
-            
+		"columnDefs": [
+            {
+					"targets": 2, // your case first column					
+					"width": "20%"
+			   },
 			{
 					"targets": 5, // your case first column
 					"className": "text-center",
 					"width": "2%"
-			   },
-			   { "width": 1, "targets": 4 },
-			   { "width": 3, "targets": 6 },
-        ], */		
+			   },			   
+        ],		
         "ajax": {
             "url": baseUrl+'/gethrscommitweekjob',
             "type": "POST",
@@ -273,7 +281,15 @@ console.log(machine);
 			"dataSrc": ""
         },
         "columns": [
-			
+			{
+                data: null,
+                className: "dt-center editor-delete",
+                defaultContent: '',
+                orderable: false,
+				"render": function (data, type, row) {
+							return '<input type="checkbox" class="unschedulecheckjobs" data-unschedulejob="'+row.jobid.trim()+'" data-week="'+week+'" data-cell="'+cell+'" data-machine="'+machine+'" name="unschedule_udpate"/>';
+						  }
+            },
             { "data": "jobid", "name": "jobid", "autoWidth": true },
             { "data": "partid", "name": "partid", "autoWidth": true },			
 			{ "data": "partdesc", "name": "partdesc", "autoWidth": true ,
@@ -297,6 +313,36 @@ console.log(machine);
 
     });
 }
+$('.unschedule_udpate').click(function(){
+	
+	if($("input[name=unschedule_udpate]:checked").length<=0 || $('.weekupdate').val() == '')
+	{
+		alert('Please select atleast one job and Week');
+	}
+	else
+	{
+	var unschedulejob = $(this).data('unschedulejob');	
+	var jobs = [];		
+	$("input[name=unschedule_udpate]:checked").each(function() { 
+            jobs.push($(this).attr('data-unschedulejob'));	
+     });	 
+	 
+	$.ajax({
+		type: "POST",
+		url: baseUrl+'/jobs_changeweek/',
+		data: {
+			jobs : jobs,
+			week : $('.weekupdate').val()
+		},
+		dataType:'json',
+		success: function(res){
+			gethrscommitweekjob($("input[name=unschedule_udpate]:checked").attr('data-cell'),
+								$("input[name=unschedule_udpate]:checked").attr('data-machine'),
+								$("input[name=unschedule_udpate]:checked").attr('data-week'));
+		}
+	});
+	}
+})
 Date.prototype.getWeekNumber = function(){
   var d = new Date(Date.UTC(this.getFullYear(), this.getMonth(), this.getDate()));
   var dayNum = d.getUTCDay() || 7;

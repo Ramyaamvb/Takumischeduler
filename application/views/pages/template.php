@@ -24,7 +24,7 @@
 <script src="<?=base_url('assets/js/clipboard.min.js');?>"></script>
 <script src="<?=base_url('assets/js/base64.min.js');?>"></script>
 <script src="<?=base_url('assets/js/moment.min.js');?>"></script>
-<script src="<?=base_url('assets/js/custom.js');?>"></script>
+<script src="<?=base_url('assets/js/custom.js?v='.constant('APP_VERSION'));?>"></script>
 <?php if (file_exists(constant('APPPATH').'../assets/js/custom_'.$v.'.js')) { ?>
 <script src="<?=base_url('assets/js/custom_'.$v.'.js?v='.constant('APP_VERSION'));?>"></script>
 <?php } ?>

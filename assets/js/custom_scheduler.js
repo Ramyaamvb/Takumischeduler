@@ -149,13 +149,13 @@ function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
 	
 	DT1 = $("#unschedule").DataTable({
 	"destroy": true,		
-		"scrollX":     true,	
-        "processing": false, // for show progress bar
-        "serverSide": false, // for process server side
-        "filter": true, // this is for disable filter (search box)
-        "orderMulti": false, // for disable multiple column at once
-        "pageLength": 20,	
-		"bLengthChange": false,				
+		"scrollY": "65vh",		
+		"scrollX":     true,
+		"scrollCollapse": true,
+		"paging": false,		
+        //"processing": false, // for show progress bar        
+        //"filter": true, // this is for disable filter (search box)        
+		//"order": [],			
 		"columnDefs": [
             {
                     

@@ -30,7 +30,7 @@
     <link rel="stylesheet"
 	          href="<?=base_url('assets/css/bootstrap.min.css');?>">
 	<link rel="stylesheet"
-	          href="<?=base_url('assets/css/custom.min.css');?>">
+	          href="<?=base_url('assets/css/custom.min.css?v='.constant('APP_VERSION'));?>">
 	
 	
 	<link href="<?=base_url('assets/css/jquery.ml-keyboard.css');?>" rel="stylesheet">
