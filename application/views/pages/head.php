@@ -19,9 +19,11 @@
 	<link href="<?=base_url('assets/css/fontawesome.css');?>" rel="stylesheet">
 	
 	<link rel="stylesheet"
-          href="<?=base_url('assets/datatables/datatables.min.css');?>">	  
+          href="<?=base_url('assets/datatables/datatables.1.min.css');?>">
+  
   <link rel="stylesheet"
   href="<?=base_url('assets/datatables/fixedColumns.dataTables.min.css');?>">
+  
   <link rel="stylesheet"
   href="<?=base_url('assets/datatables/select.dataTables.min.css');?>">
   

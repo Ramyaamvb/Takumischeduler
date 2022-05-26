@@ -8,15 +8,25 @@ class Planning_model extends CI_Model {
 		
 		$this->m1db = $this->load->database('M1', TRUE);
 	}
-	function unplanned_jobs($cell,$machineid)
+	function cell_machines($cell)
+	{		
+			
+		$query = $this->db->query("SELECT machine_unique,machine_name,m_cell_m1name,case when m_cell_m1name IN ('TWIN','MILL3','MILL1','MILL5') then '5' when m_cell_m1name IN ('DECO','PLAS','MILL2','MILL4') THEN '4' ELSE '' END  AS totalmachine FROM machines LEFT OUTER JOIN machine_cells ON m_cell_id=machine_cell_id where m_cell_pit_show =1 and m_cell_m1name='".$cell."'");		
+				
+		return $query->result();
+		
+		
+	}
+	function unplanned_jobs($cell)
 	{
-		$query = $this->m1db->query("select * from (SELECT DISTINCT rtrim(cmoname) as Customer, 
-									rtrim(omlpartid)as PartID,CASE WHEN jmpjobid is not NULL THEN rtrim(jmpjobid) WHEN omdDeliveryType = 1 THEN 'Make To Order' WHEN omdDeliveryType = 2 THEN 'Pull From Stock' WHEN omdDeliveryType = 4 THEN 'Kit Part' WHEN omdDeliveryType = 5 THEN 'Purchase to Order' ELSE '' END as jmpJobID ,rtrim(omlpartshortdescription) as PartDescription ,(omddeliveryquantity-omdquantityshipped) AS 'remaining_Quantity',
-									jmpscheduledstartdate ,uomdcustomerdeliverydate,CASE WHEN ((year(uomdcustomerdeliverydate) < year(getdate()) or year(uomdcustomerdeliverydate) <= year(getdate()) and DATEPART(week, uomdcustomerdeliverydate) < DATEPART(week, getdate()))) then 'B/L' WHEN year(uomdcustomerdeliverydate) = year(getdate()) and DATEPART(week, uomdcustomerdeliverydate) = DATEPART(week, getdate()) THEN 'Curr Week' WHEN DATEDIFF(year,getdate(),uomdcustomerdeliverydate)*52+ DATEPART(week, uomdcustomerdeliverydate) - DATEPART(week, getdate()) <=17 THEN 'Curr Week +'+ FORMAT(DATEDIFF(year,getdate(),uomdcustomerdeliverydate)*52 + DATEPART(week, uomdcustomerdeliverydate) - DATEPART(week, getdate()), '#') WHEN DATEDIFF(year,getdate(),uomdcustomerdeliverydate)*52+ DATEPART(week, uomdcustomerdeliverydate) - DATEPART(week, getdate()) >17 THEN 'Curr Week+18++' ELSE 'an Error' end as TheWeek,
-									workcenter, RTRIM(machine) AS MACHINE, CASE
-									WHEN lmljobid IS NOT NULL THEN 'Clocked in ' + lmlworkcenterid
-									ELSE 'No Clock-in'
-									END AS clockins,cycletime,ujmporiginalprodweek,ujmpcurrentprodweek,
+		$query = $this->m1db->query("SELECT DISTINCT xaquniqueid,rtrim(cmoname) as Customer, 
+									rtrim(omlpartid)as PartID,CASE WHEN jmpjobid is not NULL THEN rtrim(jmpjobid) WHEN omdDeliveryType = 1 THEN 'Make To Order' WHEN omdDeliveryType = 2 THEN 'Pull From Stock' WHEN
+									 omdDeliveryType = 4 THEN 'Kit Part' WHEN omdDeliveryType = 5 THEN 'Purchase to Order' ELSE '' END as jmpJobID ,rtrim(omlpartshortdescription) as PartDescription ,
+									 (omddeliveryquantity-omdquantityshipped) AS 'remaining_Quantity',
+									jmpscheduledstartdate ,uomdcustomerdeliverydate,
+									workcenter, RTRIM(machine) AS MACHINE, 
+									case when workcenter='MILL3' then ((omddeliveryquantity-omdquantityshipped)*cycletime)/60 when workcenter In ('MILL1','DECO','TWIN','MILL2','MILL4','MILL5') then (((omddeliveryquantity-omdquantityshipped)*cycletime)/60)+1 end as
+cycletime,ujmporiginalprodweek,ujmpcurrentprodweek,
 									jmmpartshortdescription,jmmpartid,
 									CASE
 									WHEN rmlreceiptid IS NOT NULL THEN 'Material recieved on ' + rmlreceiptdate
@@ -27,12 +37,7 @@ class Planning_model extends CI_Model {
 									END AS [MatStatus],
 									rtrim(ujmpNestingJobID) as ujmpNestingJobID,
 									omporderdate,
-									CASE
-									WHEN treatsreceiptid IS NOT NULL THEN 'Recieved from treats on ' + treatsreceiptdate
-									WHEN treatspurchaseorderid IS NOT NULL THEN 'At treats PO:' + treatspurchaseorderid + ' due '+ treatsduedate
-									WHEN plating_count IS NULL THEN 'No Plating Required'
-									ELSE 'Not gone for plating yet'
-									END AS treatsstatus,
+								
 
 									CASE
 									WHEN ujmpprogrammingrequired <> -1
@@ -83,19 +88,7 @@ class Planning_model extends CI_Model {
 									FROM shipmentlines
 									GROUP BY smljobid) AS a
 									ON smljobid = jmpjobid
-									OUTER apply
-									(
-									SELECT TOP 1
-									*
-									FROM timecardlines
-									WHERE lmljobid IN
-									(
-									SELECT omjjobid
-									FROM salesorderjoblinks
-									WHERE omjsalesorderid = omdsalesorderid
-									AND omjsalesorderlineid = omlsalesorderlineid)
-									AND lmljobassemblyid = 0
-									ORDER BY lmlcreateddate DESC ) lml
+									
 									LEFT OUTER JOIN
 									(
 									SELECT pmljobid,
@@ -110,59 +103,26 @@ class Planning_model extends CI_Model {
 									WHERE pmljobtype = 1
 									GROUP BY pmljobid ) AS c
 									ON pmljobid = jmpjobid
+									
 									LEFT OUTER JOIN
 									(
-									SELECT pmljobid AS treatsjobid,
-									Rtrim(Max( pmlpurchaseorderid )) AS treatspurchaseorderid ,
-									Format(Max( pmlduedate ),'dd/MM/yyyy') AS treatsduedate ,
-									Max(rmlreceiptid) AS treatsreceiptid ,
-									Format(Max(rmlreceiptdate),'dd/MM/yyyy') AS treatsreceiptdate,
-									FORMAT(MAX(upmlSupplierCollectionDate),'dd/MM/yyyy') AS treatscollection
-									FROM purchaseorderlines
-									LEFT OUTER JOIN uSupplierAMFCollections
-									on usfBatchID = pmlJobID
-									and usfLoadID = (Select MAX(usfLoadID) from uSupplierAMFCollections )
-									LEFT OUTER JOIN receiptlines
-									ON rmlpurchaseorderid = pmlpurchaseorderid
-									AND rmlpurchaseorderlineid = pmlpurchaseorderlineid
-									WHERE pmljobtype = 2
-									GROUP BY pmljobid ) AS d
-									ON treatsjobid = jmpjobid
-									LEFT OUTER JOIN
-									(
-									SELECT jmojobid,
+									SELECT jmojobid,xaquniqueid,
 									Max( xaqdescription ) AS machine,
 									MIN( xaqWorkCenterID ) AS workcenter,
-									max( jmoProductionStandard) as cycletime
+									( jmoProductionStandard) as cycletime
 									FROM joboperations
 									LEFT OUTER JOIN workcentermachines
 									ON jmoworkcenterid = xaqworkcenterid
 									AND jmoworkcentermachineid = xaqworkcentermachineid
 									WHERE jmojobassemblyid = 0
 									AND jmoworkcenterid in ('MILL1','DECO','TWIN','MILL2','MILL3','MILL4','MILL5')
-									GROUP BY jmojobid) AS e
+									GROUP BY jmojobid,xaquniqueid,jmoProductionStandard) AS e
 									ON jmpjobid = jmojobid
-									LEFT OUTER JOIN
-									(
-									SELECT jmojobid,
-									Count(*) AS plating_count
-									FROM joboperations
-									WHERE jmooperationtype = 2
-									AND jmoworkcenterid = 'OUTS'
-									GROUP BY jmojobid ) AS theops
-									ON theops.jmojobid = jmpjobid
+									
 									INNER JOIN organizations
 									ON cmoorganizationid = ompcustomerorganizationid
-									LEFT OUTER JOIN
-									(
-									SELECT smlpartid,
-									Max( smlcreateddate ) AS smlcreateddate
-									FROM shipmentlines
-									GROUP BY smlpartid ) AS theshipment
-									ON theshipment.smlpartid = jmppartid
-									OUTER APPLY (
-									Select top 1 * from uPartFaiStatus where uifPartID = omlPartID ORDER BY uifFairStatus DESC, uifPartFaiStatusID DESC
-									)FAIRS
+								
+									
 									WHERE ( omdShippedcomplete <> -1
 									)
 									AND ( uomdCustomerDeliveryDate < DATEADD(wk,12,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) ))
@@ -173,8 +133,17 @@ class Planning_model extends CI_Model {
 									AND ompcustomerpo NOT LIKE 'SH100%'
 									AND (
 									imppartgroupid <> 'GMRS'
-									OR imppartgroupid IS NULL) and workcenter='".$cell."')test WHERE clockins='No Clock-in'
-						");
+									OR imppartgroupid IS NULL) and workcenter='".$cell."' AND NOT EXISTS(
+									SELECT TOP 1
+									*
+									FROM timecardlines
+									WHERE lmljobid IN
+									(
+									SELECT omjjobid
+									FROM salesorderjoblinks
+									WHERE omjsalesorderid = omdsalesorderid
+									AND omjsalesorderlineid = omlsalesorderlineid)
+									ORDER BY lmlcreateddate DESC )");
 			return $query->result();
 	}
 	function machines_weekdata()
@@ -186,16 +155,87 @@ class Planning_model extends CI_Model {
 		
 		$qry_res->next_result();
 		$qry_res->free_result();
-		
-		$query = $this->m1db->query("SELECT * FROM (SELECT xaquniqueid,concat('w',ujmpCurrentProdWeek) AS week,sum(jmoProductionStandard * (omddeliveryquantity-omdquantityshipped))/60 AS cycletime FROM Jobs 
+				
+		$query = $this->m1db->query("SELECT * FROM (SELECT xaquniqueid,concat('w',ujmpCurrentProdWeek) AS week,
+		sum(case when jmoworkcenterid='MILL3' then ((omddeliveryquantity-omdquantityshipped)*jmoProductionStandard)/60 when jmoworkcenterid In ('MILL1','DECO','TWIN','MILL2','MILL4','MILL5') then (((omddeliveryquantity-omdquantityshipped)*jmoProductionStandard)/60)+1 end) AS cycletime 
+		FROM Jobs 
 left outer join joboperations on jmpjobid=jmojobid 
 LEFT OUTER JOIN WorkCenterMachines on xaqWorkCenterMachineID = jmoWorkCenterMachineID AND jmoworkcenterid=xaqWorkCenterID
 LEFT OUTER JOIN SalesOrderJobLinks ON omjJobID = jmpjobid
 LEFT OUTER JOIN SalesOrderDeliveries ON omjSalesOrderID =omdSalesOrderID AND omjSalesOrderLineID = omdSalesOrderLineID AND omjSalesOrderDeliveryID = omdSalesOrderDeliveryID  
-WHERE ujmpCurrentProdWeek > '18' AND jmoworkcenterid in ('MILL1','DECO','TWIN','MILL2','MILL3','MILL4','MILL5') AND not exists (Select * from TimecardLines where lmlJobID = jmpJobID and lmlJobOperationID = jmoJobOperationID) GROUP BY xaquniqueid,ujmpCurrentProdWeek)
-x pivot(MAX(cycletime) FOR week IN ([w19],[w20],[w21],[w22],[w23],[w24],[w25],[w26]))as piv");
+WHERE ujmpCurrentProdWeek > '18' AND jmoworkcenterid in ('MILL1','DECO','TWIN','MILL2','MILL3','MILL4','MILL5') AND not exists (Select * from TimecardLines where lmlJobID = jmpJobID and lmlJobOperationID = jmoJobOperationID) and uomdCustomerDeliveryDate < DATEADD(wk,12,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) ) GROUP BY xaquniqueid,ujmpCurrentProdWeek)
+x pivot(MAX(cycletime) FOR week IN ([w".date('W')."],[w".(date('W')+1)."],[w".(date('W')+2)."],[w".(date('W')+3)."],[w".(date('W')+4)."],[w".(date('W')+5)."],[w".(date('W')+6)."],[w".(date('W')+7)."]))as piv");
 		
+
 		$data['hourscommit'] = $query->result();	
-		return $data;
+		return $data;		
+		
+	}
+	function machines($cell)
+	{		
+			
+		$query = $this->db->query("SELECT substr(acthr_weekno,2) as week,machine_unique,machine_name,m_cell_m1name,case when m_cell_m1name IN ('TWIN','MILL3','MILL1','MILL5') then '5' when m_cell_m1name IN ('DECO','PLAS','MILL2','MILL4') THEN '4' ELSE '' END  AS totalmachine FROM machines 
+LEFT OUTER JOIN machine_actualhours ON acthr_machineid = machine_unique
+LEFT OUTER JOIN machine_cells ON m_cell_id=machine_cell_id where m_cell_pit_show =1 and m_cell_m1name='".$cell."'");		
+				
+		return $query->result();
+		
+		
+	}
+	function setactualvalue()
+	{
+		$data = array('acthr_weekno'=>'w'.$_POST['week'],
+				'acthr_year'=>date('Y'),
+				'acthr_value'=>$_POST['actualvalue'],
+				'acthr_machineid'=>$_POST['machineid']);
+		$query = $this->db->insert('machine_actualhours',$data);
+		return true;
+	}
+	function planjobssubmit()
+	{
+		for($i=0;$i<=count($_POST['data'])-1;$i++)
+		{	
+			foreach($_POST['data'][$i] as $k=>$v)
+			{
+				$jobid = $v;
+			}
+			$query = $this->m1db->set('ujmpCurrentProdWeek',$_POST['week'])
+								->where('jmpjobid',$jobid)
+								->update('jobs');
+		}
+		
+		if ($this->m1db->affected_rows()>0)
+			return 1;
+		else
+			return 0;
+	}
+	function gethrscommitweekjob()
+	{
+		if($_POST['week']!=0)
+			$week = "AND ujmpcurrentprodweek = ".$_POST['week']."";
+		else
+			$week = "AND ujmpcurrentprodweek < ".date('W')."";
+		
+		if($_POST['machine']!='')
+			$machine = "and  xaquniqueid = '".$_POST['machine']."'";
+		else
+			$machine = '';
+		
+		$query = $this->m1db->query("select jmojobid  as jobid,jmppartid as partid,jmppartshortdescription as partdesc,cmoname as customer,ujmpCurrentProdWeek as week,xaqdescription as machine,
+									case when jmoworkcenterid='MILL3' then CAST(((omddeliveryquantity-omdquantityshipped)*jmoProductionStandard)/60 as DECIMAL(10,2)) when jmoworkcenterid In ('MILL1','DECO','TWIN','MILL2','MILL4','MILL5') then CAST((((omddeliveryquantity-omdquantityshipped)*jmoProductionStandard)/60)+1 AS DECIMAL(10,2)) END AS cycletime from Jobs 
+									LEFT OUTER JOIN JobOperations ON jmpjobid=jmojobid
+									LEFT OUTER JOIN Organizations ON cmoorganizationid=jmpCustomerOrganizationID
+									LEFT OUTER JOIN workcentermachines ON jmoworkcenterid = xaqworkcenterid AND jmoworkcentermachineid = xaqworkcentermachineid
+									LEFT OUTER JOIN SalesOrderJobLinks ON omjJobID = jmpjobid
+									LEFT OUTER JOIN SalesOrderDeliveries ON omjSalesOrderID =omdSalesOrderID AND omjSalesOrderLineID = omdSalesOrderLineID AND omjSalesOrderDeliveryID = omdSalesOrderDeliveryID  
+									where ujmpCurrentProdWeek <>'' and not exists (SELECT TOP 1 * FROM TimecardLines
+									WHERE lmljobid = jmpjobid) 
+									AND jmoworkcenterid='".$_POST['cell']."' ".$week." ".$machine."
+									and uomdCustomerDeliveryDate < DATEADD(wk,12,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) )  ORDER BY ujmpCurrentProdWeek desc");	
+	$row =$query->result();
+	
+	
+	return $row;
+	
 	}
 }

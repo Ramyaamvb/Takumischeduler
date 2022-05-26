@@ -251,21 +251,18 @@ Where jmmJobID = '".$jobid."'");
 	function scheduledjob()
 	{
 		$machine_id = $_POST['machineid'];
-		$query = $this->m1db->query("Select ujmpCurrentProdWeek as proweekno,CONCAT('week',DATEPART(ISO_WEEK, ujmobucketweek)) AS Week,ujmobucketweek,cmoOrganizationID as customerid,cmoName as customername,jmmPartShortDescription AS materialdesc,jmmPartID AS materialid,cast(( ujmmLength* ujmmWidth * jmmEstimatedQuantity )/3456 as decimal(10,3)) AS sheetrequired,xaqUniqueID,ujmpNestingJobID,rtrim(jmpJobID) as jmpjobid,rtrim(jmpPartID) as jmppartid ,jmpPartShortDescription, RTRIM(jmmPartShortDescription) as jmmPartShortDescription, CASE WHEN uajIssuedToJob IS NOT NULL OR imtPartTransactionID IS NOT NULL THEN 'GREEN' WHEN rmlReceiptID is not null OR unjProcessedComplete = -1 OR jmmReceivedComplete = -1 THEN 'ORANGE' ELSE 'RED' END AS 'Material_status',format(jmpScheduledStartDate,'dd-MM-yyyy') as schedulestart,FORMAT(jmpProductionDueDate,'dd-MM-yyyy') as prodduedate,  jmoJobOperationID as operationid, FORMAT(jmpProductionQuantity,'#') as quantity, FORMAT(jmoProductionStandard,'#') as prodstandard, dbo.MinutestoHoursMins(jmpProductionQuantity* jmoProductionStandard* CASE when jmmQuantityPerAssembly <> 0 THEN jmmQuantityPerAssembly ELSE (1/ NULLIF(ujmmQuantityPartsPerUnit,0)) END)  as jmoEstimatedProductionHours, xaqDescription from Jobs 
+		$query = $this->m1db->query("Select rtrim(ujmpCurrentProdWeek) as proweekno,CONCAT('week',DATEPART(ISO_WEEK, ujmobucketweek)) AS Week,ujmobucketweek,cmoOrganizationID as customerid,cmoName as customername,xaqUniqueID,rtrim(jmpJobID) as jmpjobid,rtrim(jmpPartID) as jmppartid ,jmpPartShortDescription, FORMAT(uomdCustomerDeliveryDate, 'dd/MM/yyyy') as customerdeliverydate,FORMAT(jmpProductionDueDate,'dd/MM/yyyy') as prodduedate,  jmoJobOperationID as operationid, FORMAT(jmpProductionQuantity,'#') as quantity, FORMAT(jmoProductionStandard,'#') as prodstandard, xaqDescription from Jobs 
 		LEFT outer join partrevisions on jmpPartID = imrPartID and jmpPartRevisionID = imrPartRevisionID 
 		Left Outer Join JobOperations on JMOJOBID = JMPJOBID and JMOJOBASSEMBLYID = 0 
 		left outer join workcentermachines on xaqWorkCenterID = jmoWorkCenterID and xaqWorkcenterMachineID = jmoWorkCenterMachineID  
 		LEFT OUTER JOIN Organizations ON jmpCustomerOrganizationID=cmoOrganizationID 
-		left outer join uNestingJob on ujmpNestingJobID = unjNestingJobID
-		outer apply (Select top 1 imttransactiondate,imtPartTransactionID from PartTransactions where imtTransactionType =2 and imtInventoryQuantityReceived > 0 and imtJobID = jmpJobID )z
-		outer apply(Select top 1 jmmReceivedComplete ,jmmPartID , ujmmThickness ,jmmQuantityPerAssembly, ujmmQuantityPartsPerUnit, jmmPartShortDescription , rmlReceiptID, ujmmLength, ujmmWidth , jmmEstimatedQuantity from jobmaterials Left Outer Join ReceiptLines on RMLJOBID = JMMJOBID and RMLJOBASSEMBLYID = JMMJOBASSEMBLYID and RMLJOBMATERIALID = JMMJOBMATERIALID where jmmJobID = jmpJobID and jmmJobAssemblyID = 0 order by jmmJobMaterialID DESC  )A 
-		OUTER APPLY (Select count(*) as shipcount from shipmentlines where smlPartID = jmppartid and smlPartRevisionID = jmpPartRevisionID  )B 
-		outer apply (Select max( uajPartBinID ) as stockBin, max(uajIssuedToJob) as uajIssuedToJob from uLotNumJobs where uajJobID = jmpJobID )C  
+	LEFT OUTER JOIN SalesOrderJobLinks ON omjJobID = jmpjobid
+LEFT OUTER JOIN SalesOrderDeliveries ON omjSalesOrderID =omdSalesOrderID AND omjSalesOrderLineID = omdSalesOrderLineID AND omjSalesOrderDeliveryID = omdSalesOrderDeliveryID  
 		where ujmpbucketweek IS not null and jmpProductionComplete <> -1 and jmoQuantityComplete = 0 and jmoProductionComplete <> -1 and jmpQuantityShipped = 0 AND 
 		not EXISTS (Select pmlSalesOrderID from PurchaseOrderLines where pmlJobID = jmpJobID and pmlJobType = 2)  AND 
 		NOT exists (Select lmltimecardid from timecardlines where lmljobid = jmpjobid ) AND 
 		exists (Select omjjobid from SalesOrderJobLinks left outer join SalesOrderDeliveries on OMDSALESORDERID = OMJSALESORDERID and OMDSALESORDERLINEID = OMJSALESORDERLINEID Left Outer Join SalesOrderLines on OMDSALESORDERID = OMLSALESORDERID and OMDSALESORDERLINEID = OMLSALESORDERLINEID Left Outer Join SalesOrders on OMDSALESORDERID = OMPSALESORDERID where omdShippedComplete <> -1 and omdClosed <> -1 and omlClosed <> -1 and ompClosed <> -1 and omjJobID = jmpjobid   ) 
-		 AND xaquniqueid = '".$machine_id."' ");
+		 AND xaquniqueid='".$machine_id."' ");
 
 		return $query->result();
 	}

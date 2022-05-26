@@ -629,8 +629,7 @@ table.dataTable td.dataTables_empty {
 							<th style="width:70px">Proweekno</th>
 							<th>Ope. ID</th>
 							<th style="width:70px;text-align:center">Quantity</th>
-							<th style="width:80px">Scheduled</th>
-							<th style="width:80px">Prod date</th>
+							<th style="width:80px">DeliveryDate</th>							
 							
 						</tr>
 					</thead>					

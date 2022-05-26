@@ -1,10 +1,8 @@
 (function($){
-$('.screen_content').each(function() {
-var type = $('#type').val();
-var cell = $('#cell').val();
 
-   setTimeout(function(){
-				window.location = '/cellmetrics/cell/'+cell+'/'+type; }, 60000);
-  
-}); 
+setTimeout(function() { 
+        $('#preloader').fadeOut('slow', function () {
+           $(this).remove();
+        });
+    }, 500);
 })(jQuery);

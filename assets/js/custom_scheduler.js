@@ -173,7 +173,7 @@ function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
 		   "sInfo" : " Total _TOTAL_ jobs",// text you want show for info section
 		},
 		fixedColumns:   {
-            //left: 2
+            left: 2
         },	
 		select: {
             style:    'multi',
@@ -819,7 +819,8 @@ function scheduled_jobs_update(where)
 			{ 
 				"width": 20, "targets": [6] 
 			},			
-			{"className": "dt-center", "targets": [6]}            
+			{"className": "dt-center", "targets": [6]},            
+			{"className": "dt-center", "targets": [7]}            
         ],
         "ajax": {
             "url": baseUrl+'/scheduledjob/',
@@ -856,8 +857,8 @@ function scheduled_jobs_update(where)
 			},
 			{ "data": "operationid", "name": "operationid", "autoWidth": true },
 			{ "data": "quantity", "name": "orderqty", "autoWidth": true },
-			{ "data": "schedulestart", "name": "schedulestart", "autoWidth": true },
-			{ "data": "prodduedate", "name": "prodduedate", "autoWidth": true }
+			{ "data": "customerdeliverydate", "name": "customerdeliverydate", "autoWidth": true },
+			
 			
 			
         ]

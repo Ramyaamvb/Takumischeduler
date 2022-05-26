@@ -23,8 +23,9 @@ class Base_model extends CI_Model {
                 
         return $ret;
     }	
-	function cell_machines()
-	{
+	function cell_machines($cell=false)
+	{		
+			
 		$query = $this->db->query("SELECT machine_unique,machine_name,m_cell_m1name,case when m_cell_m1name IN ('TWIN','MILL3','MILL1','MILL5') then '5' when m_cell_m1name IN ('DECO','PLAS','MILL2','MILL4') THEN '4' ELSE '' END  AS totalmachine FROM machines LEFT OUTER JOIN machine_cells ON m_cell_id=machine_cell_id where m_cell_pit_show =1");		
 				
 		return $query->result();
