@@ -263,14 +263,23 @@ function gethrscommitweekjob(cell,machine='',week=false)
 		//"order": [[ 7, "desc" ]],		
 		"dom": 'B<"toolbar">frtip',
 		"columnDefs": [
+			{
+					"targets": 4, // your case first column					
+					"width": "10%"
+			},
             {
 					"targets": 2, // your case first column					
 					"width": "20%"
-			   },
+			},
 			{
 					"targets": 5, // your case first column
 					"className": "text-center",
 					"width": "2%"
+			   },			   
+			   {
+					"targets": 5, // your case first column
+					"className": "text-center",
+					"width": "30%"
 			   },			   
         ],		
         "ajax": {
