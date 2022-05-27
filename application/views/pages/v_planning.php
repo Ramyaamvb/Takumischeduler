@@ -193,7 +193,7 @@ table.setdividerheight td
 							<tr class="gridStyle">
 								<th></th>								
 								<th style="width:90px">PartID</th>
-								<th style="width:90px">JobID</th>								
+								<th style="width:90px">JobID/Ope.ID</th>								
 								<th>PartDescription</th>
 								<th>Rema. Qty</th>
 								<th style="width:90px">Scheduled Date</th>
@@ -239,10 +239,10 @@ table.setdividerheight td
 						</thead>					
 						<tbody>
 							<?php foreach($rows as $v) { ?>
-							<tr>
+							<tr class="<?=($v->material=='GREEN')?'text-success':'';?>" style="font-weight:<?=($v->material=='GREEN')?'700':'';?>">
 								<td></td>
 								<td><?=$v->PartID;?></td>
-								<td><?=$v->jmpJobID;?></td>
+								<td><?=$v->jmpJobID.' / '.$v->jmoJobOperationID;?></td>
 								<td><?=substr($v->PartDescription,0,10);?></td>
 								<td><?=round($v->remaining_Quantity,0);?></td>
 								<td><?=date("d/m/Y", strtotime($v->jmpscheduledstartdate));?></td>
