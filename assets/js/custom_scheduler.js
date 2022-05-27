@@ -221,9 +221,8 @@ function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
 						  }
 			},
 			{ "data": "operationid", "name": "operationid", "autoWidth": true,
-				"render": function (data, type, row) {
-							if(row.checkoperation!='') { return  Math.round(data)+'<span class="text-info"> Next OP</span>'; }
-							else { return  Math.round(data); }
+				"render": function (data, type, row) {							
+							return  Math.round(data);
 						  }
 			},
 			{ "data": "Material_status", "name": "Material_status", "autoWidth": true },
