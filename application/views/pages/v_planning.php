@@ -400,11 +400,11 @@ table.setdividerheight td
 					 </div>
 					 <div class="form-group">
 						<h4 class="bg-secondary p-1 text-light"><label for="">Work Efficiency</label></h4><br/>
-						<input class="checkbox-impact" type="radio" name="workeffi" id="impact-3" value="75">
+						<input class="checkbox-impact" type="radio" name="workeffi" id="impact-3" checked value="75">
 						<label class="radiospan for-checkbox-impact" for="impact-3">							
 							<span data-hover="75%">75%</span>
 						</label>
-						<input class="checkbox-impact" type="radio" name="workeffi" id="impact-7" checked value="80">
+						<input class="checkbox-impact" type="radio" name="workeffi" id="impact-7"  value="80">
 						<label class="radiospan for-checkbox-impact" for="impact-7">							
 							<span data-hover="80%">80%</span>
 						</label>

@@ -1,5 +1,8 @@
 (function($){
 
+var getUrl = window.location;
+var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+
 document.getElementById("set_height").style.height = $(window).height()-70;	
 
 window.onresize = function (event) {
@@ -184,7 +187,7 @@ function getslectedrows()
 
 $('.setactualhours').click(function(){
 	$('input[name=standhr][value="78"]').prop('checked', true);
-	$('input[name=workeffi][value="80"]').prop('checked', true);
+	$('input[name=workeffi][value="75"]').prop('checked', true);
 	$('input[name=bankholiday][value="0"]').prop('checked', true);
 	machineid = $(this).attr('data-machineid');
 	week = $(this).attr('data-week');	
