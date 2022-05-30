@@ -9,12 +9,35 @@ class Planning_model extends CI_Model {
 		$this->m1db = $this->load->database('M1', TRUE);
 	}
 	function cell_machines($cell)
-	{		
-			
+	{	
 		$query = $this->db->query("SELECT machine_unique,machine_name,m_cell_m1name,case when m_cell_m1name IN ('TWIN','MILL3','MILL1','MILL5') then '5' when m_cell_m1name IN ('DECO','PLAS','MILL2','MILL4') THEN '4' ELSE '' END  AS totalmachine FROM machines LEFT OUTER JOIN machine_cells ON m_cell_id=machine_cell_id where m_cell_pit_show =1 and m_cell_m1name='".$cell."'");		
-				
-		return $query->result();
 		
+		$ret = array();
+		$rows = (object)array();
+		
+		foreach($query->result() as $rows)
+		{
+			$query = $this->m1db->query("select  case when jmoworkcenterid='MILL3' then CAST(SUM(((omddeliveryquantity-omdquantityshipped)*jmoProductionStandard)/60) as DECIMAL(10,2)) 
+				when jmoworkcenterid In ('MILL1','DECO','TWIN','MILL2','MILL4','MILL5') then CAST(SUM((((omddeliveryquantity-omdquantityshipped)*jmoProductionStandard)/60)+1) AS DECIMAL(10,2)) END as cycletime from Jobs 
+									LEFT OUTER JOIN JobOperations ON jmpjobid=jmojobid
+									LEFT OUTER JOIN Organizations ON cmoorganizationid=jmpCustomerOrganizationID
+									LEFT OUTER JOIN workcentermachines ON jmoworkcenterid = xaqworkcenterid AND jmoworkcentermachineid = xaqworkcentermachineid
+									LEFT OUTER JOIN SalesOrderJobLinks ON omjJobID = jmpjobid
+									LEFT OUTER JOIN SalesOrderDeliveries ON omjSalesOrderID =omdSalesOrderID AND omjSalesOrderLineID = omdSalesOrderLineID AND omjSalesOrderDeliveryID = omdSalesOrderDeliveryID  
+									where ujmpCurrentProdWeek <>'' and not exists (SELECT TOP 1 * FROM TimecardLines
+									WHERE lmljobid = jmpjobid) 
+									AND jmoworkcenterid='".$cell."' and xaquniqueid = '{".$rows->machine_unique."}'  and ujmpcurrentprodweek < 22
+									and uomdCustomerDeliveryDate < DATEADD(wk,12,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) )  group by jmoworkcenterid");
+									
+			if(isset(($query->row())->cycletime))
+				$rows->backloghrs = ($query->row())->cycletime;
+			else
+				$rows->backloghrs = 0;
+			
+			array_push($ret,$rows);
+		}
+		
+		return $ret;
 		
 	}
 	function unplanned_jobs($cell)
@@ -260,17 +283,29 @@ LEFT OUTER JOIN machine_cells ON m_cell_id=machine_cell_id where m_cell_pit_show
 		else
 			$machine = '';
 		
+		
 		$query = $this->m1db->query("select jmojobid  as jobid,jmppartid as partid,jmppartshortdescription as partdesc,cmoname as customer,ujmpCurrentProdWeek as week,xaqdescription as machine,
-									case when jmoworkcenterid='MILL3' then CAST(((omddeliveryquantity-omdquantityshipped)*jmoProductionStandard)/60 as DECIMAL(10,2)) when jmoworkcenterid In ('MILL1','DECO','TWIN','MILL2','MILL4','MILL5') then CAST((((omddeliveryquantity-omdquantityshipped)*jmoProductionStandard)/60)+1 AS DECIMAL(10,2)) END AS cycletime from Jobs 
+									case when jmoworkcenterid='MILL3' then CAST(((omddeliveryquantity-omdquantityshipped)*jmoProductionStandard)/60 as DECIMAL(10,2)) when jmoworkcenterid In ('MILL1','DECO','TWIN','MILL2','MILL4','MILL5') then CAST((((omddeliveryquantity-omdquantityshipped)*jmoProductionStandard)/60)+1 AS DECIMAL(10,2)) END AS cycletime, 
+									jmmPartID as matid,rtrim(ujmpNestingJobID) as nestingid,
+									CASE	WHEN rmlreceiptid IS NOT NULL THEN 'Material recieved on ' + rmlreceiptdate
+											WHEN pmlpurchaseorderid IS NOT NULL THEN 'Material PO:' + pmlpurchaseorderid + ' due on ' + pmlduedate
+											WHEN jmmpurchaseorderid IS NOT NULL
+											AND jmmpurchaseorderid <> '' THEN jmmpurchaseorderid
+											ELSE 'No material ordered' END AS [MatStatus] 
+									from Jobs 
 									LEFT OUTER JOIN JobOperations ON jmpjobid=jmojobid
 									LEFT OUTER JOIN Organizations ON cmoorganizationid=jmpCustomerOrganizationID
 									LEFT OUTER JOIN workcentermachines ON jmoworkcenterid = xaqworkcenterid AND jmoworkcentermachineid = xaqworkcentermachineid
 									LEFT OUTER JOIN SalesOrderJobLinks ON omjJobID = jmpjobid
 									LEFT OUTER JOIN SalesOrderDeliveries ON omjSalesOrderID =omdSalesOrderID AND omjSalesOrderLineID = omdSalesOrderLineID AND omjSalesOrderDeliveryID = omdSalesOrderDeliveryID  
+									outer apply (Select top 1 Format((rmlreceiptdate),'dd/MM/yyyy') AS rmlreceiptdate,rmlReceiptID from ReceiptLines where rmlJobID = jmpJobID and rmlJobAssemblyID = 0 )B 
+									outer apply (Select top 1 pmlpurchaseorderid,jmmpartshortdescription,jmmReceivedComplete,jmmQuantityPerAssembly,jmmPartID, jmmPurchaseOrderID, Format(pmlduedate,'dd/MM/yyyy') as pmlDueDate from jobMaterials 
+									Left Outer Join PurchaseOrderLines on PMLJOBID = JMMJOBID and pmlPurchaseOrderID = jmmPurchaseOrderID where jmmJobID = jmpJobID and jmmJobAssemblyID = 0 )C 
 									where ujmpCurrentProdWeek <>'' and not exists (SELECT TOP 1 * FROM TimecardLines
 									WHERE lmljobid = jmpjobid) 
 									AND jmoworkcenterid='".$_POST['cell']."' ".$week." ".$machine."
 									and uomdCustomerDeliveryDate < DATEADD(wk,12,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) )  ORDER BY ujmpCurrentProdWeek desc");	
+									
 	$row =$query->result();
 	
 	

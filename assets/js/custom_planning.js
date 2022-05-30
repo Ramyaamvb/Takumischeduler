@@ -13,8 +13,6 @@ window.addEventListener('resize', function(event) {
 
 
 
-var getUrl = window.location;
-var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
 
 
 $(".tablebody").each(function() {	    
@@ -56,9 +54,10 @@ function get_unplannedjobs(cell,machineid,material_status,materialtype,reload)
 		//"order": [],		
 		"columnDefs": [
 			{
-                target:[3],
+                target:2,
                 visible: false
             },
+			
         ],
 		"responsive": false,
 		"oLanguage": {
@@ -242,11 +241,15 @@ function test(machineid,week,actualvalue,cell)
 	 });
 }
 $('.getbacklogjobs').click(function(){	
+	$('.showheader').html("");
 	$("#gethrscommitweekjob").modal('show');
+	$('.showheader').html($(this).attr('data-cell')+" - Backlog Jobs");
 	gethrscommitweekjob($(this).attr('data-cell'));
 })
 $('.getjobshrscommit').click(function(){	
+    $('.showheader').html("");
 	$("#gethrscommitweekjob").modal('show');
+	$('.showheader').html($(this).attr('data-cell')+" - Commit Jobs - Week - "+$(this).attr('data-week'));
 	gethrscommitweekjob($(this).attr('data-cell'),$(this).attr('data-machine'),$(this).attr('data-week'));
 })
 function gethrscommitweekjob(cell,machine='',week=false)
@@ -254,34 +257,50 @@ function gethrscommitweekjob(cell,machine='',week=false)
 	table = $('.getbacklogweekjobdatatable').DataTable();
 	table.clear().destroy();		
 	$(".getbacklogweekjobdatatable").DataTable({		
-		"destroy": true,
-        "processing": false, // for show progress bar
-        "serverSide": false, // for process server side
-        "filter": true, // this is for disable filter (search box)
-        "orderMulti": false, // for disable multiple column at once
-        "pageLength": 15,		
-		//"order": [[ 7, "desc" ]],		
-		"dom": 'B<"toolbar">frtip',
+		//"dom": 'Bfirtlp',
+		//"destroy": true,			
+		"scrollY": "75vh",		
+		"scrollX":     true,
+		"scrollCollapse": true,
+		"paging": false,		
+        //"processing": false, // for show progress bar        
+        //"filter": true, // this is for disable filter (search box)        
+		//"order": [],		
 		"columnDefs": [
 			{
-					"targets": 4, // your case first column					
-					"width": "10%"
+					"targets": 1, // your part				
+					"width": "13%"
 			},
             {
-					"targets": 2, // your case first column					
+					"targets": 2, // your part				
 					"width": "20%"
 			},
 			{
-					"targets": 5, // your case first column
+					"targets": 3, // your part				
+					"width": "15%"
+			},
+			{
+					"targets": 4, // your customer				
+					"width": "1%"
+			},
+				   
+			   {
+					"targets": 6, // your weekno
 					"className": "text-center",
 					"width": "2%"
-			   },			   
+			   },	
 			   {
-					"targets": 5, // your case first column
+					"targets": 7, // your weekno
 					"className": "text-center",
-					"width": "30%"
-			   },			   
+					"width": "20%"
+			   },
+			    {
+					"targets": 8, // your cycletime
+					"className": "text-center",					
+			   },
+					   
         ],		
+		"dom": 'lifrtpi',
         "ajax": {
             "url": baseUrl+'/gethrscommitweekjob',
             "type": "POST",
@@ -301,11 +320,11 @@ function gethrscommitweekjob(cell,machine='',week=false)
             },
             { "data": "jobid", "name": "jobid", "autoWidth": true },
             { "data": "partid", "name": "partid", "autoWidth": true },			
-			{ "data": "partdesc", "name": "partdesc", "autoWidth": true ,
+			/* { "data": "partdesc", "name": "partdesc", "autoWidth": true ,
 				"render": function (data, type, row) {
 							 return  data.substring(0,10);
 						  }
-			},
+			}, */
 			{ "data": "customer", "name": "customer", "autoWidth": true,
 				"render": function (data, type, row) {
 							 if(row.customer!=null)								
@@ -317,8 +336,11 @@ function gethrscommitweekjob(cell,machine='',week=false)
 			{ "data": "week", "name": "week", "autoWidth": true },		
 			{ "data": "machine", "name": "machine", "autoWidth": true },
 			{ "data": "cycletime", "name": "cycletime", "autoWidth": true },
+			{ "data": "matid", "name": "cycletime", "autoWidth": true },
+			{ "data": "nestingid", "name": "cycletime", "autoWidth": true },
+			{ "data": "MatStatus", "name": "cycletime", "autoWidth": true },
         ],
-"buttons":[]		
+		"buttons":[]		
 
     });
 }

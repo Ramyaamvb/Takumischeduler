@@ -33,8 +33,8 @@ class Scheduler_model extends CI_Model {
 		not EXISTS (Select pmlSalesOrderID from PurchaseOrderLines where pmlJobID = jmpJobID and pmlJobType = 2) AND 
 		not exists (Select lmltimecardid from timecardlines where lmljobid = jmpjobid) AND 
 		exists (Select omjjobid from SalesOrderJobLinks left outer join SalesOrderDeliveries on OMDSALESORDERID = OMJSALESORDERID and OMDSALESORDERLINEID = OMJSALESORDERLINEID Left Outer Join SalesOrderLines on OMDSALESORDERID = OMLSALESORDERID and OMDSALESORDERLINEID = OMLSALESORDERLINEID Left Outer Join SalesOrders on OMDSALESORDERID = OMPSALESORDERID where omdShippedComplete <> -1 and omdClosed <> -1 and omlClosed <> -1 and ompClosed <> -1 and omjJobID = jmpjobid   ) 
-		AND ( uomdCustomerDeliveryDate < DATEADD(wk,12,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) )) and xaqworkcenterid = '".$cell."' $machine_id  $materialtype");
-		
+		and xaqworkcenterid = '".$cell."' $machine_id  $materialtype");
+		//AND ( uomdCustomerDeliveryDate < DATEADD(wk,12,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) ))
 		//print $this->m1db->last_query();
 		if($materialstatus!='all'){
 		$issue = $materialstatus;

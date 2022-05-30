@@ -81,7 +81,10 @@ table.setdividerheight td
 				<?php foreach($machines as $k) { ?>
 					<tr class="machines-<?=$k->totalmachine;?>" data-machine="<?=$k->m_cell_m1name; ?>"> <!--scheduledjobs-->
 						<th class="scheduledjobs col-md-2 p-0" data-machine="<?=$k->m_cell_m1name; ?>" data-uniqueid="<?=$k->machine_unique;?>"  data-machine="<?=$k->m_cell_m1name; ?>" data-machinename="<?=$k->machine_name;?>">
-							<?=$k->machine_name;?>
+							<?php if($k->backloghrs != 0) { ?>
+								<div class="p-1 text-light bg-danger">BL - <?=$k->backloghrs;?></div><br/>
+							<?php } ?>
+							<?=$k->machine_name;?>							
 							<div class="mt-2  clearcalc test_<?=$k->machine_unique;?>"></div>
 						</th>
 						<td>
@@ -445,7 +448,10 @@ table.setdividerheight td
 						</select>
 						</div>
 						<div class="col-3 text-left">
-						<button class="btn btn-info unschedule_udpate">Update</button>
+						<button class="btn btn-info unschedule_udpate">Update</button>						
+						</div>
+						<div class="col-6 text-left text-light showheader">
+						
 						</div>
 					</div>
 					</h4>
@@ -462,13 +468,16 @@ table.setdividerheight td
 					<thead>
 						<tr class="gridStyle">	
 							<th></th>
-							<th style="width:70px">JobID</th>
-							<th style="width:80px">PartID</th>	
-							<th style="width:80px">Desc.</th>															
-							<th style="width:80px">Customer</th>
-							<th style="width:80px">ProWeekno</th>
+							<th>JobID</th>
+							<th>PartID</th>	
+							<!--<th>Desc.</th>-->
+							<th>Customer</th>
+							<th>Week</th>
 							<th style="width:80px">Machine</th>							
-							<th style="width:80px">Cycle Time</th>							
+							<th style="width:80px">Cycle Time</th>		
+							<th style="width:80px">Mat.ID</th>		
+							<th style="width:80px">Mat.Sta</th>
+							<th style="width:80px">NestingID</th>							
 						</tr>
 					</thead>					
 					<tbody></tbody>

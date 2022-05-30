@@ -9,6 +9,7 @@ class Base extends MY_Controller {
 		
 		$this->D['title'] = 'Takumi Scheduler and Plaaning Dashboard';	
 		
+		 $this->load->model('base_model', 'base');
 		
     }
 
@@ -21,6 +22,15 @@ class Base extends MY_Controller {
 		$this->load->view('pages/template', $d);
 			
     }
+	public function getjobtatus()
+	{
+				
+		$row = $this->base->getjobtatus();		
+		
+		print json_encode($row);
+		
+		exit;
+	}
 	
 	
 
