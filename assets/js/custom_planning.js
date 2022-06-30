@@ -92,9 +92,7 @@ function get_unplannedjobs(cell,machineid,material_status,materialtype,reload)
 
 $("body").on('click', '.plan_jobs', function() {		
 	table = $('#unschedule').DataTable();	 
-	var rows = table.rows( '.selected' ).indexes();
-	console.log(rows);
-	console.log(rows.count());
+	var rows = table.rows( '.selected' ).indexes();	
 	if(rows.count()==0)
 		$('.clearcalc').html('');		
 	var res = getslectedrows();
@@ -114,10 +112,8 @@ $("body").on('click', '.selectAll', function() {
 	
 function appendhours(data)
 {	
-	console.log(data);
-	
 	$.each(data, function(i, res){	
-	$('.test_'+res.uniqueid).html('<h5 class="text-light bg-info pt-1 pb-1 text-center" style="font-size:20px;">'+parseFloat(res.prodhrs).toFixed(2)+'</h5>');		
+	$('.machine_'+res.uniqueid).html('<h5 class="text-light bg-info pt-1 pb-1 text-center" style="font-size:20px;">'+parseFloat(res.prodhrs).toFixed(2)+'</h5>');		
 	})	
 }
 $('.planjobssubmit').click(function(e){
@@ -140,8 +136,7 @@ $('.planjobssubmit').click(function(e){
 	return {
 			jobid: item[2]			
 			};		
-	});
-	
+	});	
 	var week = $(this).html();
 	$.ajax({
 		type:"post",
@@ -154,15 +149,15 @@ $('.planjobssubmit').click(function(e){
 		success:function (res){
 			location.reload();
 		},
-		 error: function() {                       
+		/*  error: function() {                       
 			alert("An unknown error occured! Your change was not saved.\nClick ok to refresh page to ensure correct data.");
 			location.reload();
 		},
 		complete: function() {
 			$('#preloader').fadeOut('slow', function () {
 				$(this).hide();
-			});
-		}
+			}); 
+		}*/
 	})
 	
 })
@@ -211,14 +206,14 @@ $('.submitactualhours').click(function(){
             dataType: 'json',
             success: function (res) {	
 				
-				test(machineid,week,actualvalue,cell)
+				submitactualhours(machineid,week,actualvalue,cell)
 			},
 			error:function(){}
 	 });
 	
 })
 
-function test(machineid,week,actualvalue,cell)
+function submitactualhours(machineid,week,actualvalue,cell)
 {
 	$.ajax({
             type: "POST",
@@ -391,4 +386,116 @@ $('.closesetactualhour').click(function(){
 $('.closegethrscommitweekjob').click(function(){
 	$('#gethrscommitweekjob').modal('hide');
 })
+
+$("body").on('click', '.updatemachine', function(e) {
+	$(".select-text").empty();
+	e.preventDefault();		
+	$("#machineupdateModal").modal('show');
+	changecell();
+})
+function changecell()
+{
+		
+	$.ajax({
+		type: "POST",
+		url: baseUrl+'/getcells/',
+		data: {},
+		dataType:'json',
+		success: function(res){	
+		let sel = document.querySelector('.select-celltext');
+		$(".select-celltext").empty();		
+		$('.select-celltext').prepend('<option value="">--select--</option>');
+		res.forEach((users)=>{
+			  let opt = document.createElement('option');
+			  opt.value=users.m_cell_m1name;
+			  let mcellname=document.createTextNode(users.m_cell_m1name);
+			  opt.appendChild(mcellname);
+			  sel.appendChild(opt);
+		  });
+		  
+		 $('.select-celltext option[value='+$('.cell_select').val()+']').attr('selected','selected');	
+		}
+	})	
+}
+$("body").on('click', '.select-celltext', function(e) {	
+	//$('.updatemachine').attr('data-cell',$(this).val());
+	changemachine($(this).val());
+})
+function changemachine(data)
+{	
+	$.ajax({
+		type: "POST",
+		url: baseUrl+'/getmachines/',
+		data: {
+			workcenterid :data
+		},
+		dataType:'json',
+		success: function(res){	
+		let sel = document.querySelector('.select-text');
+		$(".select-text").empty();
+			  
+		res.forEach((users)=>{			
+			  let opt = document.createElement('option');
+			  opt.value=users.machineid;
+			  opt.setAttribute('data-processid', users.processid);
+			  opt.setAttribute('data-processdesc', users.processdesc);
+			  let userName=document.createTextNode(users.xaqDescription);
+			  opt.appendChild(userName);
+			  sel.appendChild(opt);
+		  });
+		 
+		}
+	})	
+}
+
+$("body").on('click', '.update_machine', function(e) {	
+	
+	e.preventDefault();	
+	var table = $('#unschedule').DataTable();
+		var cellsSelected = table.rows({ selected: true }).data();
+		cellsSelected[0];
+		
+		theArray=[];
+		var myValues= $('#unschedule').DataTable();
+		var ids = $.map(myValues.rows('.selected').data(), function (item) {					
+		return {
+				  ids: item[2]
+				  
+				};		
+		});	
+		
+	if(ids == '')
+	{
+		alert('Please choose atleast one job to change the machine');
+	}
+	else
+	{
+		$.ajax({
+			type: "POST",
+			url: baseUrl+'/updatemachine/',
+			data: {
+				ids:ids,workcenter:$('.select-celltext').val(),machine:$('.select-text').val(),processid:$('.select-text').find(':selected').attr('data-processid'),processdesc:$('.select-text').find(':selected').attr('data-processdesc')
+			},
+			dataType:'json',
+			success: function(res){
+				location.reload(); 
+			},
+		   error: function() {                       
+				alert("An unknown error occured! Your change was not saved.\nClick ok to refresh page to ensure correct data.");
+				location.reload();
+			},
+			complete: function() {
+				$('#preloader').fadeOut('slow', function () {
+					$(this).hide();
+				}); 
+			}
+			
+		})
+	}
+	
+})
+$('.hidemachineupdate').click(function(){
+	$("#machineupdateModal").modal('hide');
+})
+
 })(jQuery);

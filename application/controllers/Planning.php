@@ -35,7 +35,7 @@ class Planning extends MY_Controller {
 		
 		//$d['week_nums'] = array();
 		
-		$d['weekdata'] = $this->planning->machines_weekdata();
+		$d['weekdata'] = $this->planning->machines_weekdata();		
 		
 		
 		$d['week_num'] = array();
@@ -87,5 +87,24 @@ class Planning extends MY_Controller {
 		exit;
 	}
 	
-
+	/** get machines for change machine name each job starts**/
+	function getcells()
+	{
+		$row = $this->base->machine_cell();
+		print json_encode($row);
+		exit;		
+	}	
+	function getmachines()
+	{
+		$row = $this->planning->getmachines();
+		print json_encode($row);
+		exit;
+	}	
+	function updatemachine() //update machinename
+	{
+		$row = $this->planning->updatemachine();
+		print json_encode($row);
+		exit;
+	}
+	/** get machines for change machine name each job ends**/
 }

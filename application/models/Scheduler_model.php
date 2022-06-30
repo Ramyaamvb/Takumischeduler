@@ -31,9 +31,11 @@ class Scheduler_model extends CI_Model {
 		OUTER apply(SELECT TOP 1 pmlduedate from PurchaseOrderLines WHERE pmlJobID = jmpJobID ORDER BY pmlcreateddate desc )D
 		where ujmobucketweek is null and jmpProductionComplete <> -1 and jmoQuantityComplete = 0 and jmoProductionComplete <> -1 and jmpQuantityShipped = 0 AND 
 		not EXISTS (Select pmlSalesOrderID from PurchaseOrderLines where pmlJobID = jmpJobID and pmlJobType = 2) AND 
-		not exists (Select lmltimecardid from timecardlines where lmljobid = jmpjobid) AND 
-		exists (Select omjjobid from SalesOrderJobLinks left outer join SalesOrderDeliveries on OMDSALESORDERID = OMJSALESORDERID and OMDSALESORDERLINEID = OMJSALESORDERLINEID Left Outer Join SalesOrderLines on OMDSALESORDERID = OMLSALESORDERID and OMDSALESORDERLINEID = OMLSALESORDERLINEID Left Outer Join SalesOrders on OMDSALESORDERID = OMPSALESORDERID where omdShippedComplete <> -1 and omdClosed <> -1 and omlClosed <> -1 and ompClosed <> -1 and omjJobID = jmpjobid   ) 
-		and xaqworkcenterid = '".$cell."' $machine_id  $materialtype");
+		not exists (Select lmltimecardid from timecardlines where lmljobid = jmojobid AND lmlJobOperationID = jmoJobOperationID) AND 
+		exists (Select omjjobid from SalesOrderJobLinks left outer join SalesOrderDeliveries on OMDSALESORDERID = OMJSALESORDERID and OMDSALESORDERLINEID = OMJSALESORDERLINEID Left Outer Join SalesOrderLines on OMDSALESORDERID = OMLSALESORDERID and OMDSALESORDERLINEID = OMLSALESORDERLINEID Left Outer Join SalesOrders on OMDSALESORDERID = OMPSALESORDERID 
+		where omdShippedComplete <> -1 and omdClosed <> -1 and omlClosed <> -1 and ompClosed <> -1 and omjJobID = jmpjobid   ) 
+		AND ( uomdCustomerDeliveryDate < DATEADD(wk,22,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) )) 
+		and jmoWorkCenterID = '".$cell."' $machine_id  $materialtype");
 		//AND ( uomdCustomerDeliveryDate < DATEADD(wk,12,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) ))
 		//print $this->m1db->last_query();
 		if($materialstatus!='all'){
@@ -66,15 +68,7 @@ class Scheduler_model extends CI_Model {
 		}	
 		return $ret;		
 	}
-	function material_list()
-	{
-		$query = $this->m1db->query("Select imrPartID as material from Parts
-Left Outer Join PartRevisions on IMRPARTID = IMPPARTID Left Outer Join PartClasses on IMPPARTCLASSID = IMCPARTCLASSID Left Outer Join LotNumbers on ABLPARTID = IMRPARTID AND
-ABLPARTREVISIONID = IMRPARTREVISIONID
-where uimrStockType = 'P' and ablPartBinID like 'S%'
-Group By imrPartID , uimcUoM ORDER BY imrpartid");
-		return $query->result();
-	}
+
 	/* function material_startweekdate()
 	{
 		
@@ -90,33 +84,7 @@ ORDER BY imrPartID");
 		return $query->result();
 		
 	} */
-	function materials()
-	{
-		$query = $this->m1db->query("Select imrPartID as material, CASE WHEN (SheetsOnHand - sheetsused) /CASE uimcUoM WHEN 'MM' THEN 87782 ELSE 3456 END <0 THEN 0 ELSE (SheetsOnHand - sheetsused) /CASE uimcUoM WHEN 'MM' THEN 87782 ELSE 3456 END END as SheetsOnHand, uimcUoM FROM (
-Select imrPartID , sum(imrSheetSizeX * imrSheetSizeY * ablQuantityOnHand) as SheetsOnHand, IMPPARTCLASSID from Parts
-Left Outer Join PartRevisions on IMRPARTID = IMPPARTID Left Outer Join LotNumbers on ABLPARTID = IMRPARTID AND
-ABLPARTREVISIONID = IMRPARTREVISIONID
-where uimrStockType = 'P' and ablPartBinID like 'S%'
-Group By imrPartID ,IMPPARTCLASSID)a
-Left Outer Join PartClasses on IMPPARTCLASSID = IMCPARTCLASSID
-OUTER apply( Select CAST(SUM(ujmmLength * ujmmWidth * jmmEstimatedQuantity) as float) as sheetsused from jobs Left Outer Join JobMaterials on JMMJOBID = JMPJOBID and JMMJOBASSEMBLYID = 0 where jmmPartID = imrPartID and not exists (Select * from parttransactions where imtJobid = jmpJobID and imrPartID = jmpPartID ) and exists (Select * from JobOperations WHERE JMOJOBID = JMPJOBID and JMOJOBASSEMBLYID = 0 and ujmobucketweek <> '' ) )B
-ORDER BY imrPartID");
-		return $query->result();
-	}
-	function material_sheetused()
-	{
-		
-		$query = $this->m1db->query("Select imrPartID, CASE WHEN ujmpbucketweek < getdate()-7 THEN 	CONCAT(YEAR( dateadd(week, datediff(week, 0, getdate()), 0) ), '-' ,RIGHT(STUFF(DATEPART(ISO_WEEK, dateadd(week, datediff(week, 0, getdate()), 0) ),1,0,'0'),2) ) 	ELSE CONCAT(YEAR( ujmpbucketweek ), '-' ,RIGHT(STUFF(DATEPART(ISO_WEEK, ujmpbucketweek ),1,0,'0'),2 )) END as week,SUM(ujmmLength * ujmmWidth * jmmEstimatedQuantity ) /CASE uimcUoM WHEN 'MM' THEN 87782 ELSE 3456 END as sheetweek
-from jobs
-Left Outer Join JobMaterials on JMMJOBID = JMPJOBID and JMMJOBASSEMBLYID = 0
-Left Outer Join parts on JMMPARTID = IMPPARTID
-Left Outer Join PartRevisions on JMMPARTID = IMRPARTID and JMMPARTREVISIONID = IMRPARTREVISIONID
-Inner Join PartClasses on IMPPARTCLASSID = IMCPARTCLASSID
-where jmpClosed <> -1 and jmpProductionComplete <> -1 and ujmpbucketweek is not null and ujmpbucketweek <> '' and uimcCutComplexity <> 0
-and not exists ( Select * from PartTransactions WHERE IMTJOBID = JMMJOBID and IMTJOBASSEMBLYID = JMMJOBASSEMBLYID and IMTJOBMATERIALID = JMMJOBMATERIALID )
-GROUP BY imrPartID, uimcUoM, CASE WHEN ujmpbucketweek < getdate()-7 THEN CONCAT(YEAR( dateadd(week, datediff(week, 0, getdate()), 0) ), '-' ,RIGHT(STUFF(DATEPART(ISO_WEEK, dateadd(week, datediff(week, 0, getdate()), 0) ),1,0,'0'),2) ) ELSE CONCAT(YEAR( ujmpbucketweek ), '-' ,RIGHT(STUFF(DATEPART(ISO_WEEK, ujmpbucketweek ),1,0,'0'),2 )) END");
-		return $query->result();
-	}
+	
 	
 	function add_jobsto_schedule()
 	{
@@ -262,38 +230,14 @@ Where jmmJobID = '".$jobid."'");
 LEFT OUTER JOIN SalesOrderDeliveries ON omjSalesOrderID =omdSalesOrderID AND omjSalesOrderLineID = omdSalesOrderLineID AND omjSalesOrderDeliveryID = omdSalesOrderDeliveryID  
 		where ujmpbucketweek IS not null and jmpProductionComplete <> -1 and jmoQuantityComplete = 0 and jmoProductionComplete <> -1 and jmpQuantityShipped = 0 AND 
 		not EXISTS (Select pmlSalesOrderID from PurchaseOrderLines where pmlJobID = jmpJobID and pmlJobType = 2)  AND 
-		NOT exists (Select lmltimecardid from timecardlines where lmljobid = jmpjobid ) AND 
+		NOT exists (Select lmltimecardid from timecardlines where lmljobid = jmojobid AND lmlJobOperationID = jmoJobOperationID ) AND 
 		exists (Select omjjobid from SalesOrderJobLinks left outer join SalesOrderDeliveries on OMDSALESORDERID = OMJSALESORDERID and OMDSALESORDERLINEID = OMJSALESORDERLINEID Left Outer Join SalesOrderLines on OMDSALESORDERID = OMLSALESORDERID and OMDSALESORDERLINEID = OMLSALESORDERLINEID Left Outer Join SalesOrders on OMDSALESORDERID = OMPSALESORDERID where omdShippedComplete <> -1 and omdClosed <> -1 and omlClosed <> -1 and ompClosed <> -1 and omjJobID = jmpjobid   ) 
 		 AND xaquniqueid='".$machine_id."' ");
 
 		return $query->result();
 	}
 
-	function materialdetail()
-	{
-		$material = $_POST['material'];
-		$data = array();
-
-		$query = $this->m1db->query("Select pmlPartID, pmlPurchaseOrderID, pmlPartRevisionID, imrSheetSizeX * imrSheetSizeY * (pmlInventoryQuantity - pmlInventoryQuantityReceived)/CASE uimcUoM WHEN 'MM' THEN 87782 ELSE 3456 END as sheets, FORMAT(pmlDueDate,'dd/MM/yyyy') as duedate from PurchaseOrders Left Outer Join PurchaseOrderLines on PMLPURCHASEORDERID = PMPPURCHASEORDERID Left Outer Join PartRevisions on PMLPARTID = IMRPARTID and PMLPARTREVISIONID = IMRPARTREVISIONID Left Outer Join Parts on IMRPARTID = IMPPARTID Left Outer Join PartClasses on IMPPARTCLASSID = IMCPARTCLASSID
-where pmlReceivedComplete <> -1 and uimrStockType = 'P' and pmlPartID = '".str_replace("'",'"',$material)."'");
-			
-		$data['materialdue'] = $query->result();
-
-		$query = $this->m1db->query("Select jmpJobID, jmpPartID , jmpCustomerOrganizationID as customer ,FORMAT(jmpScheduledStartDate,'dd-MM-yyyy') as scheduledate, imrPartID, CASE WHEN ujmpbucketweek < getdate()-7 THEN CONCAT(YEAR( dateadd(week, datediff(week, 0, getdate()), 0) ), '-' ,DATEPART(ISO_WEEK, dateadd(week, datediff(week, 0, getdate()), 0) ) ) ELSE CONCAT(YEAR( ujmpbucketweek ), '-' ,DATEPART(ISO_WEEK, ujmpbucketweek ) ) END as week
-,ujmmLength * ujmmWidth * jmmEstimatedQuantity /CASE uimcUoM WHEN 'MM' THEN 87782 ELSE 3456 END as sheetreq
-from jobs
-Left Outer Join JobMaterials on JMMJOBID = JMPJOBID and JMMJOBASSEMBLYID = 0
-Left Outer Join parts on JMMPARTID = IMPPARTID
-Left Outer Join PartRevisions on JMMPARTID = IMRPARTID and JMMPARTREVISIONID = IMRPARTREVISIONID
-Inner Join PartClasses on IMPPARTCLASSID = IMCPARTCLASSID
-where jmpClosed <> -1 and jmpProductionComplete <> -1 and ujmpbucketweek is not null and ujmpbucketweek <> '' and uimcCutComplexity <> 0
-and not exists ( Select * from PartTransactions WHERE IMTJOBID = JMMJOBID and IMTJOBASSEMBLYID = JMMJOBASSEMBLYID and IMTJOBMATERIALID = JMMJOBMATERIALID )
-and imrPartID ='".str_replace("'",'"',$material)."'");
-			
-		$data['material_jobs'] = $query->result();
-
-		return $data;
-	}
+	
 function schedule_job_bucket()
 {
 	$data = $_POST['ids'];

@@ -64,6 +64,9 @@ table.setdividerheight td
 			<div class="col-3 text-center pt-1">
 				<h4 class="text-light">P<small>LANNING</small> F<SMALL>OR</SMALL> <?=$cell;?> Cell</h4>
 			</div>
+			<div class="col-4 pt-1 text-right">
+				<button class="btn btn-secondary updatemachine">Change Machine</button>
+			</div>
 		</div>	
 		<div class="row m-0">
 			<div class="col-5 p-0" style="border-right:1px solid black;overflow:scroll" id="set_height">
@@ -85,7 +88,7 @@ table.setdividerheight td
 								<div class="p-1 text-light bg-danger">BL - <?=$k->backloghrs;?></div><br/>
 							<?php } ?>
 							<?=$k->machine_name;?>							
-							<div class="mt-2  clearcalc test_<?=$k->machine_unique;?>"></div>
+							<div class="mt-2  clearcalc machine_<?=$k->machine_unique;?>"></div>
 						</th>
 						<td>
 							<table class="w-100 setdividerheight" style="height:100%">
@@ -98,7 +101,13 @@ table.setdividerheight td
 						<td style="width:98px;">
 							<table class="w-100 setdividerheight" style="height:100%">
 								<tr><td style="border:0px;border-bottom:1px solid #878991" class="pt-3 pb-3">
-									<div>--</div>
+									<?php
+									foreach($weekdata['idealhours'] as $key=>$row)
+									{
+										if($row->idealhrs_unique == $k->machine_unique)
+											echo $row->idealhrs_value;
+									}
+									?>
 								</td></tr>	
 								<tr>
 								<td style="font-size:15px;border:0px;border-bottom:1px solid #878991"  class="pt-3 pb-3 acthr acthr_<?=$k->machine_unique;?>_<?=$date;?>" data-machineid="<?=$k->machine_unique;?>" data-week="<?=$date;?>">
@@ -487,3 +496,37 @@ table.setdividerheight td
         </div>
     </div>
 </div>
+<div class="modal fade" id="machineupdateModal" tabindex="-1" role="dialog" aria-labelledby="machineupdateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+        <div class="modal-content bg-secondary">
+            <div class="modal-header w-100">     
+					<div class="col-12 p-0 text-center">
+						<span style="font-size:1.5rem;" id="tc_machine" class="text-light" >Change Machine Name</span>					
+					<button type="button" class="btn btn-warning btn-lg float-right hidemachineupdate"><i class="fa fa-times"></i></button>					
+					</div>
+            </div>			
+            <div class="modal-body row m-0 mb-1">  			   
+				<div class="col-12 p-0">
+					<div class="row w-100 m-0">
+						<div class="col-4 text-light">	
+							Choose Cell
+						</div>
+						<div class="col-8">	
+							<select style="width:250px;height:37px" class="form-select form-select-md select-celltext"></select>
+						</div>
+					</div>
+					<div class="row w-100 m-0 mt-3">
+						<div class="col-4 text-light">	
+							Choose Machine
+						</div>
+						<div class="col-8">	
+							<select style="width:250px;height:37px"class="form-select form-select-md select-text"></select>
+							<button class="btn btn-info update_machine mt-4" data-jobid="" data-uniqueid="">Update</button>
+						</div>
+					</div>
+				</div>
+			</div>			
+                
+            </div>
+        </div>
+    </div>

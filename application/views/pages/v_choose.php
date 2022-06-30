@@ -15,6 +15,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 <div class="row mt-3 w-100  m-0 justify-content-center">
 	<div class="col-3 p-5 text-center bg-info text-light">
+		<h4 class="text-dark">Get the Status of the Job</h4>
 		<div class="row w-100 " style="padding-left:5.5rem">			
 			<div class="col-8 text-left">
 			<input type="text" class="form-control getjob">

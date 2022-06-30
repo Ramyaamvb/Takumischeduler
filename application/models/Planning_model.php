@@ -202,8 +202,8 @@ OUTER apply (SELECT jmojobid,xaquniqueid,jmoJobOperationID,( xaqdescription ) AS
 								LEFT OUTER JOIN workcentermachines ON jmoworkcenterid = xaqworkcenterid AND jmoworkcentermachineid = xaqworkcentermachineid WHERE jmojobassemblyid = 0 AND 
 								jmoworkcenterid in ('MILL1','DECO','TWIN','MILL2','MILL3','MILL4','MILL5') and jmpjobid = jmojobid
 								) AS u
-WHERE ( omdShippedcomplete <> -1	) AND ( uomdCustomerDeliveryDate < DATEADD(wk,12,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) )) AND ompclosed <> -1 AND omlclosed <> -1
-AND omdclosed <> -1   and cmoName <> 'Takumi' and cmoName <> 'Takumi Treatment Line' AND ompcustomerpo NOT LIKE 'SH100%' AND (imppartgroupid <> 'GMRS' OR imppartgroupid IS NULL) and workcenter='twin' 
+WHERE ( omdShippedcomplete <> -1	) AND ( uomdCustomerDeliveryDate < DATEADD(wk,22,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) )) AND ompclosed <> -1 AND omlclosed <> -1
+AND omdclosed <> -1   and cmoName <> 'Takumi' and cmoName <> 'Takumi Treatment Line' AND ompcustomerpo NOT LIKE 'SH100%' AND (imppartgroupid <> 'GMRS' OR imppartgroupid IS NULL) and workcenter='".$cell."' 
 AND NOT EXISTS( SELECT TOP 1 * FROM timecardlines WHERE lmljobid IN(SELECT omjjobid	FROM salesorderjoblinks	WHERE omjsalesorderid = omdsalesorderid AND omjsalesorderlineid = omlsalesorderlineid)
 					ORDER BY lmlcreateddate DESC ) ");
 			return $query->result();
@@ -217,7 +217,11 @@ AND NOT EXISTS( SELECT TOP 1 * FROM timecardlines WHERE lmljobid IN(SELECT omjjo
 		
 		$qry_res->next_result();
 		$qry_res->free_result();
-				
+		
+		$query = $this->db->query("select * from machine_idealhours");
+		
+		$data['idealhours'] = $query->result();
+		
 		$query = $this->m1db->query("SELECT * FROM (SELECT xaquniqueid,concat('w',ujmpCurrentProdWeek) AS week,
 		sum(case when jmoworkcenterid='MILL3' then ((omddeliveryquantity-omdquantityshipped)*jmoProductionStandard)/60 when jmoworkcenterid In ('MILL1','DECO','TWIN','MILL2','MILL4','MILL5') then (((omddeliveryquantity-omdquantityshipped)*jmoProductionStandard)/60)+1 end) AS cycletime 
 		FROM Jobs 
@@ -259,10 +263,10 @@ LEFT OUTER JOIN machine_cells ON m_cell_id=machine_cell_id where m_cell_pit_show
 		{	
 			foreach($_POST['data'][$i] as $k=>$v)
 			{
-				$jobid = $v;
+				$jobid = explode("/",$v); 
 			}
 			$query = $this->m1db->set('ujmpCurrentProdWeek',$_POST['week'])
-								->where('jmpjobid',$jobid)
+								->where('jmpjobid',$jobid[0])
 								->update('jobs');
 		}
 		
@@ -327,5 +331,43 @@ LEFT OUTER JOIN machine_cells ON m_cell_id=machine_cell_id where m_cell_pit_show
 		else
 			return false;
 		
+	}
+	
+	function getmachines()
+	{
+		$query = $this->m1db->select('xacShortDescription as processdesc,xawProcessID as processid,xaquniqueid,xaqWorkCenterMachineID,xaqDescription,xaqWorkCenterMachineID as machineid')
+							->join('WorkCenters','xawWorkCenterID = xaqWorkCenterID','left')
+							->join('Processes','xacProcessID=xawProcessID','left')
+							->where('xaqWorkCenterID',$_POST['workcenterid'])
+							->get('WorkCenterMachines');
+		
+		return $query->result();
+	}
+	function updatemachine()
+	{
+		$data = $_POST['ids'];
+		
+		foreach($data as $k=>$v)
+		{
+			foreach($v as $ks=>$m)
+			{
+				
+				$a = explode("/",$m);			
+				$jobid = $a[0];			
+				$joboperationid =  $a[1];
+				
+				$this->m1db->set('jmoWorkCenterID', $_POST['workcenter']);	
+				$this->m1db->set('jmoProcessID', $_POST['processid']);	
+				$this->m1db->set('jmoProcessShortDescription',$_POST['processdesc']);	
+				$this->m1db->set('jmoworkcentermachineid', $_POST['machine']);	
+				$this->m1db->where('jmojobid', $jobid);	
+				$this->m1db->where('jmoJobOperationID', $joboperationid);	
+				$this->m1db->update('joboperations');
+			}
+		}			
+		if($this->m1db->affected_rows())
+			return true;
+		else
+			return false;
 	}
 }

@@ -13,7 +13,7 @@ class Scheduler extends MY_Controller {
 		
 		$this->D['machines'] = $this->base->cell_machines();
 		
-		$this->D['materials'] = $this->scheduler->material_list();
+		
 		
 		
     }
@@ -64,42 +64,8 @@ class Scheduler extends MY_Controller {
 		
 	}
 	
-	/** all the material funciton starts **/
-
-	function material_list() /** get material list - material names**/
-	{
-		$row = $this->scheduler->material_list();
-		print json_encode($row);
-		exit;
-	}
-	/* function material_startweekdate() /** get material list - startweekdate**/
-	/*{
-		$row = $this->scheduler->material_startweekdate();
-		print json_encode($row);
-		exit;
-	} */
-	function material() /*Material sheet on hand **/
-	{
-		$row = $this->scheduler->materials();
-		print json_encode($row);
-		exit;
-	}
 	
-	function material_sheetused() /** material sheet used **/
-	{
-		$row = $this->scheduler->material_sheetused();
-		print json_encode($row);
-		exit;
-	}
 	
-	function materialdetail() /** material card**/
-	{
-		$row = $this->scheduler->materialdetail();
-		print json_encode($row);
-		exit;
-	}
-	
-	/** all the material funciton ends **/
 	
 	
 	/** get all scheduled hours machine**/

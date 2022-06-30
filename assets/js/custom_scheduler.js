@@ -58,13 +58,6 @@ $(".bucket_filter").change(function(e) {
 	}
 /**Schedule jobs 14/12**/
 var test = false;
-$('#sheetsadd').each(function(){
-	
-	material_used();	
-	material_onhand_check();	
-	
-	
-});
 
 $('.schedulejobs').each(function(){
 	scheduledjobs_update();
@@ -103,39 +96,7 @@ function scheduledjobs_update()
 	})
 }
 
-$('.hours_table').each(function(){
-	cellhours_update();
-})
 
-function cellhours_update()
-{
-	$.ajax({
-		type: "POST",
-		url: baseUrl+'/scheduledhours_cell/',
-		data: {			
-		},
-		dataType:'json',
-		success: function(res){	
-			
-			$.each(res, function(i, res){
-				var week = res.bucketweek.split('-');							
-				if($('.bl_'+(res.workcenter)).attr('data-cellname') == res.workcenter.trim()){
-					$('.cell_hours_bl_unscheduled_'+res.workcenter).html(parseFloat(res.unscheduledhrs).toFixed(0));
-					$('.cell_hours_bl_scheduled_'+res.workcenter).html(parseFloat(res.scheduledhrs).toFixed(0));
-					$('.cell_hours_bl_total_'+res.workcenter).html(parseFloat(res.totalhours).toFixed(0));
-				}
-				if($('.week_'+week[1]+'_'+(res.workcenter)).attr('data-cellname') == res.workcenter.trim()){
-					$('.cell_hours_'+week[1]+'_unscheduled_'+res.workcenter).html(parseFloat(res.unscheduledhrs).toFixed(0));
-					$('.cell_hours_'+week[1]+'_scheduled_'+res.workcenter).html(parseFloat(res.scheduledhrs).toFixed(0));
-					$('.cell_hours_'+week[1]+'_total_'+res.workcenter).html(parseFloat(res.totalhours).toFixed(0));
-				}
-						
-			})							
-		},
-		error: function() {
-		}
-	})
-}
 
 function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
 {	
@@ -320,7 +281,7 @@ function materialupdate()
 		), ([materialuniqueid, sheet]) => ({materialuniqueid,sheet}));  
 		
 		//console.log(res);
-	appendmaterial(res);
+	
 }
 
 function hoursmachineupdate()
@@ -487,124 +448,7 @@ function appendmaterial(data)
 
 
 
-function material_onhand_check()
-{
-	$.ajax({
-		type: "POST",
-		url: baseUrl+'/material/',
-		data: {			
-		},
-		dataType:'json',
-		success: function(res){						
-			var text = $('#material_row tr th:nth-child(2)').text();
-			var firstrowweek = text.split(" ");	
-			var text2 = $('#material_row tr th:nth-child(3)').text();
-			var secondrow = text2.split(" ");	
-			var text3 = $('#material_row tr th:nth-child(4)').text();
-			var thirdrowweek = text3.split(" ");	
-			
-			$.each(res, function(i, res){
-				if(res.SheetsOnHand!=null)
-				{
-					sheetstotal= parseFloat(res.SheetsOnHand).toFixed(2);
-				} else {
-					sheetstotal= 0;
-				}				
-				$('.sheet_onhand_'+firstrowweek[1]+'_'+Base64.encode(res.material)).html(sheetstotal);		
-				$('.sheet_onhand_'+firstrowweek[1]+'_'+Base64.encode(res.material)).attr('data-sheetonhand',sheetstotal);
-					
-			})	
-		},
-		error: function() {
-		}
-	})
-	
 
-}
-function material_onhand()
-{
-	$.ajax({
-		type: "POST",
-		url: baseUrl+'/material_list/',
-		data: {			
-		},
-		dataType:'json',
-		success: function(res){						
-			var text = $('#material_row tr th:nth-child(2)').text();
-			var firstrowweek = text.split(" ");	
-			var text2 = $('#material_row tr th:nth-child(3)').text();
-			var secondrow = text2.split(" ");	
-			var text3 = $('#material_row tr th:nth-child(4)').text();
-			var thirdrowweek = text3.split(" ");	
-			
-			$.each(res, function(i, res){							
-				
-				/** fetch used row value to calculate **/
-				
-				var firstrowweek_sheetused = $('.sheet_used_'+firstrowweek[1]+'_'+Base64.encode(res.material)).attr('data-sheetused');
-				var secondrow_sheetused = $('.sheet_used_'+secondrow[1]+'_'+Base64.encode(res.material)).attr('data-sheetused');
-				
-				/** assign value for next rows **/				
-				//console.log($('.sheet_onhand_'+firstrowweek[1]+'_'+Base64.encode(res.material)).attr('data-sheetonhand'));
-				//console.log(firstrowweek_sheetused);
-				//console.log($('.sheet_onhand_'+firstrowweek[1]+'_'+Base64.encode(res.material)).attr('data-sheetonhand')-firstrowweek_sheetused);
-				$('.sheet_onhand_'+secondrow[1]+'_'+Base64.encode(res.material)).html(
-				
-					parseFloat(parseFloat($('.sheet_onhand_'+firstrowweek[1]+'_'+Base64.encode(res.material)).attr('data-sheetonhand')) - parseFloat(firstrowweek_sheetused)).toFixed(2)
-				);
-				$('.sheet_onhand_'+secondrow[1]+'_'+Base64.encode(res.material)).attr('data-sheetonhand',
-				
-					parseFloat(parseFloat($('.sheet_onhand_'+firstrowweek[1]+'_'+Base64.encode(res.material)).attr('data-sheetonhand')) - parseFloat(firstrowweek_sheetused)).toFixed(2)
-				);				
-				$('.sheet_onhand_'+thirdrowweek[1]+'_'+Base64.encode(res.material)).html(
-				
-					parseFloat(parseFloat($('.sheet_onhand_'+secondrow[1]+'_'+Base64.encode(res.material)).html()) - parseFloat(secondrow_sheetused)).toFixed(2)
-				);	
-				$('.sheet_onhand_'+thirdrowweek[1]+'_'+Base64.encode(res.material)).attr('data-sheetonhand',
-				
-					parseFloat(parseFloat($('.sheet_onhand_'+secondrow[1]+'_'+Base64.encode(res.material)).html()) - parseFloat(secondrow_sheetused)).toFixed(2)
-				);
-				
-					
-			})	
-		},
-		error: function() {
-		}
-	})
-	
-
-}
-function material_used()
-{
-	$.ajax({
-		type: "POST",
-		url: baseUrl+'/material_sheetused/',
-		data: {			
-		},
-		dataType:'json',
-		success: function(res){			
-			var next_sheet_1 = 0, next_sheet_2=0;
-			//test();
-			//console.log(res);
-			$.each(res, function(i, res){
-				var week = res.week.split('-');				
-				
-				$('.sheet_used_'+week[1]+'_'+Base64.encode(res.imrPartID)).html(parseFloat(res.sheetweek).toFixed(2));				
-				
-				$('.sheet_used_'+week[1]+'_'+Base64.encode(res.imrPartID)).attr('data-sheetused',parseFloat(res.sheetweek).toFixed(2));
-										
-				//console.log((Base64.encode(res.imrPartID))+'-'+res.sheetweek);
-//console.log('sheet_onhand_'+week[1]+'_'+Base64.encode(res.imrPartID));
-				
-			
-				
-			})
-			material_onhand();				
-		},
-		error: function() {
-		}
-	})
-}
 
 function convert(str)
 {
@@ -848,7 +692,7 @@ function scheduled_jobs_update(where)
 			},
 			{ "data": "proweekno", "name": "proweekno", "autoWidth": true ,
 				"render": function (data, type, row) {
-							if(row.proweekno != null)
+							if(row.proweekno != '')
 								return 'Week '+data;
 							else
 								return '';
@@ -883,8 +727,7 @@ $('.unschedule_udpate').click(function(){
 			scheduled_jobs_update($('#testunique').val());
 			$('.sheet_null').html('0');		
 			$('.sheet_null').attr('data-sheetused',0);		
-			material_used();		
-			material_onhand();					
+							
 			scheduledjobs_update();				
 			unschedulefilter();	
 		}
@@ -988,8 +831,7 @@ function updatebucketweek(ids,mids)
 			//$('.sheet_null').attr('data-sheetonhand',0);
 			
 			
-			material_used();		
-			material_onhand();		
+			
 			
 			//material_used_test(mids);
 			//material_onhand_test(mids);

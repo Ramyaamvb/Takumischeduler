@@ -35,7 +35,7 @@ class Base_model extends CI_Model {
 	public function getjobtatus()
 	{
 		$query = $this->m1db->query("select CASE WHEN lmljobid IS NOT NULL THEN 'Clocked in ' ELSE 'No Clock-in' END as [ClockinsStatus],FORMAT(lmlactualstarttime,'dd/MM/yyyy') as starttime,FORMAT(ujmpbucketweek,'dd/MM/yyyy') as jobbucketweek,jmpJobID,jmoJobOperationID,jmoWorkCenterID as workcenter,xaqDescription,ujmobucketweek,ujmoScheduleQueue  FROM  Jobs 
-									LEFT OUTER JOIN joboperations ON jmojobid=jmpjobid AND jmoworkcenterid IN('TWIN','DECO','PLAS','MILL3','MILL1','MILL2','MILL4','MILL5')
+									LEFT OUTER JOIN joboperations ON jmojobid=jmpjobid 
 									LEFT OUTER JOIN WorkCenterMachines ON jmoWorkCenterID = xaqWorkCenterID AND jmoWorkCenterMachineID=xaqWorkCenterMachineID
 									LEFT OUTER JOIN TimecardLines on lmljobid=jmpjobid AND lmlJobOperationID=jmoJobOperationID
 									WHERE jmpJobId='".$_POST['getjob']."'");		
