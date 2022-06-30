@@ -27,8 +27,7 @@ $week_num = array_slice($week_nums,0,3);
 <style>
 .dataTables_scrollBody::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-    background-color: #F5F5F5;
-    border-radius: 10px;
+    background-color: #F5F5F5;    
 }
 
 .dataTables_scrollBody::-webkit-scrollbar {
@@ -37,8 +36,7 @@ $week_num = array_slice($week_nums,0,3);
 }
 
 .dataTables_scrollBody::-webkit-scrollbar-thumb {
-    background-color: #777;
-    border-radius: 10px;
+    background-color: #777;    
 }
 .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody {
   overflow-y: scroll !important;
@@ -48,7 +46,10 @@ $week_num = array_slice($week_nums,0,3);
    width: 6px;
     background-color: #F5F5F5;
 }
-
+.dataTables_wrapper.no-footer .dataTables_scrollBody
+{
+	border-bottom:0px;
+}
 .material_table td.crossed
 {
    background-image: linear-gradient(to bottom right,  transparent calc(50% - 1px), #3e1b30, transparent calc(50% + 1px)); 
@@ -192,8 +193,7 @@ table.dataTable td.dataTables_empty {
 
 </style>
 <div class="row m-0" style="height:100vh">
-	<div class="filtersclass col-12 p-0">
-	
+	<div class="filtersclass col-12 p-0">	
 		<div class="header-filter row w-100 m-0">					
 			<div class="col p-0 pl-2">
 				<select name="cell" id="cell_select">			
@@ -203,9 +203,9 @@ table.dataTable td.dataTables_empty {
 				</select>
 			</div>
 			<div class="col">
-				<select name="machineid" id="machines_select">
-					<option data-cell="all" value="all" required>--Select Machine--</option>
+				<select name="machineid" id="machines_select">					
 					<?php foreach($machines as $k) {?>
+					<option data-cell="all" value="all">--Select Machine--</option>
 					<option value="<?=$k->machine_unique;?>"  data-cell="<?=$k->m_cell_m1name;?>" ><?=$k->machine_name;?></option>				
 					<?php }?>
 					<input type="hidden" value="" id="machineid">
@@ -235,18 +235,11 @@ table.dataTable td.dataTables_empty {
 		</div>
 		
 		<div class="row m-0">
-			<div class="col-3 p-0" style="border-right:1px solid black" id="set_height">
+			<div class="col-2 p-0" style="border-right:1px solid black" id="set_height">
 				<table class="schedulejobs bucket"  id="machine_hours_row" width="100% " height="100%">
 					<thead>
 						<tr>
-							<th><select class="bucket_filter">
-							<?php foreach($cell as $k){ ?>
-							<option value="<?=$k->m_cell_m1name; ?>"><?=$k->m_cell_name; ?></option>
-							<?php } ?>
-							</select></th>			
-							<?php foreach($week_num as $date){ ?>
-								<th><?php echo 'Week '.$date; ?></th>					
-							<?php } ?>						
+							<th class="text-left header pt-2 pb-2"></th>															
 						</tr>
 					</thead>
 					<tbody>
@@ -255,86 +248,15 @@ table.dataTable td.dataTables_empty {
 							<th class="scheduledjobs col-md-4 p-0" data-machine="<?=$k->m_cell_m1name; ?>" data-uniqueid="<?=$k->machine_unique;?>"  data-machine="<?=$k->m_cell_m1name; ?>" data-machinename="<?=$k->machine_name;?>">
 								<a href="<?=base_url('scheduler/scheduledjobs?c='.$k->m_cell_m1name.'&mid='.$k->machine_unique)?>" class="text-dark"><?=$k->machine_name;?></a>
 							</th>
-							<td class="col-md-2 p-0" data-uniqueid="<?=$k->machine_unique;?>"  data-machine="<?=$k->m_cell_m1name; ?>">
-								<table class="w-100" height="100%">
-									<tr style="height:3vh"><td colspan="2" class="border border-success text-center">							 	
-										<div class="row w-100 m-0" style="height:100%">
-										<div class="col-6 p-0 scheduledhrs_null totalhours<?=$week_num[0];?>_<?=$k->machine_unique;?>" data-unique="<?=$k->machine_unique;?>" style="border-right:1px solid #442136"></div>
-												<div td class="col-6 p-0 machine_hrs_calc totalhours_calc<?=$week_num[0];?>_<?=$k->machine_unique;?>" data-unique="<?=$k->machine_unique;?>" style="border:0px"></div>
-										</td>
-									</tr>
-									<tr>
-									<td class="scheduledhrs_null latehours<?=$week_num[0];?>_<?=$k->machine_unique;?> crossed w-50 pb-6 text-danger" style="border-right:0;" data-unique="<?=$k->machine_unique;?>" data-week="<?=date("W"); ?>">-
-									</td>
-									<td class="crossedleft" style="border-right:0">
-										<div class="row m-0">
-											<div class="scheduledhrs_null futurehours<?=$week_num[0];?>_<?=$k->machine_unique;?> col-12 p-0 pb-4 pr-1 text-right text-success" data-unique="<?=$k->machine_unique;?>">
-												-
-											</div>
-											<div class="scheduledhrs_null currenthours<?=$week_num[0];?>_<?=$k->machine_unique;?> col-12 p-0 pb-2 pr-2" style="margin-left:-13px" data-unique="<?=$k->machine_unique;?>">
-												-
-											</div>
-										</div>
-									</td>
-									</tr>
-								</table>
-							</td>
-							<td class="col-md-2 p-0" data-uniqueid="<?=$k->machine_unique;?>" data-machine="<?=$k->m_cell_m1name; ?>">
-								<table class="w-100" style="height:100%">
-									<tr style="height:3vh"><td colspan="2" class="border border-success text-center">
-										<div class="row w-100 m-0"  style="height:100%">
-										<div class="col-6 p-0 scheduledhrs_null totalhours<?=$week_num[1];?>_<?=$k->machine_unique;?>" data-unique="<?=$k->machine_unique;?>" style="border-right:1px solid #442136"></div>
-												<div td class="col-6 p-0 machine_hrs_calc totalhours_calc<?=$week_num[1];?>_<?=$k->machine_unique;?>" data-unique="<?=$k->machine_unique;?>" style="border:0px"></div>
-									</td></tr>
-									<tr>
-									<td class="scheduledhrs_null latehours<?=$week_num[1];?>_<?=$k->machine_unique;?> crossed w-50 pb-6 text-danger" style="border-right:0;" data-unique="<?=$k->machine_unique;?>" data-week="<?=date("W"); ?>">-
-									</td>
-									<td class="crossedleft" style="border-right:0">
-										<div class="row m-0">
-											<div class="scheduledhrs_null futurehours<?=$week_num[1];?>_<?=$k->machine_unique;?> col-12 p-0 pb-4 pr-1 text-right text-success" data-unique="<?=$k->machine_unique;?>">
-												-
-											</div>
-											<div class="scheduledhrs_null currenthours<?=$week_num[1];?>_<?=$k->machine_unique;?> col-12 p-0 pb-2 pr-2" style="margin-left:-13px" data-unique="<?=$k->machine_unique;?>">
-												-
-											</div>
-										</div>
-									</td>
-									</tr>
-								</table>
-							</td>
-							<td class="col-md-2 p-0" data-uniqueid="<?=$k->machine_unique;?>"data-machine="<?=$k->m_cell_m1name; ?>">
-								<table class="w-100" style="height:100%">
-									<tr style="height:3vh"><td colspan="2" class="border-bottom border-success text-center">
-										<div class="row w-100 m-0"  style="height:100%">
-										<div class="col-6 p-0 scheduledhrs_null totalhours<?=$week_num[2];?>_<?=$k->machine_unique;?>" data-unique="<?=$k->machine_unique;?>" style="border-right:1px solid #442136"></div>
-												<div td class="col-6 p-0 machine_hrs_calc totalhours_calc<?=$week_num[2];?>_<?=$k->machine_unique;?>" data-unique="<?=$k->machine_unique;?>" style="border:0px"></div>
-									</td></tr>
-									<tr>
-									<td class="scheduledhrs_null latehours<?=$week_num[2];?>_<?=$k->machine_unique;?> crossed w-50 pb-6 text-danger" style="border-right:0;" data-unique="<?=$k->machine_unique;?>" data-week="<?=date("W"); ?>">-
-									</td>
-									<td class="crossedleft" style="border-right:0">
-										<div class="row m-0">
-											<div class="scheduledhrs_null futurehours<?=$week_num[2];?>_<?=$k->machine_unique;?> col-12 p-0 pb-4 pr-1 text-right text-success" data-unique="<?=$k->machine_unique;?>">
-												-
-											</div>
-											<div class="scheduledhrs_null currenthours<?=$week_num[2];?>_<?=$k->machine_unique;?> col-12 p-0 pb-2 pr-2" style="margin-left:-13px" data-unique="<?=$k->machine_unique;?>">
-												-
-											</div>
-										</div>
-									</td>
-									</tr>
-								</table>
-							</td>
-							
 						</tr>
 					<?php } ?>
 					</tbody>
 				</table>
 			</div>
-			<div class="col-9 p-0" style="height:auto">
+			<div class="col-10 p-0" style="height:auto">
 				<div class="row w-100 m-0">
 					<div class="col-12 unschedule_header">
-						<h5>Unscheduled Jobs</h5>
+						<h5 class="headerforrightpanel">Unscheduled Jobs</h5>
 					</div>
 				</div>
 				<div class="row w-100 m-0">
@@ -367,7 +289,7 @@ table.dataTable td.dataTables_empty {
 						</div>
 						
 						<table id="unschedule" clientidmode="Static" class="unschedule tablebody display nowrap hover w-100">
-						<thead>
+						<thead style="background:grey;color:white;">
 							<tr class="gridStyle">
 								<th></th>
 								<th>Customer</th>

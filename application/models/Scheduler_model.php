@@ -8,7 +8,24 @@ class Scheduler_model extends CI_Model {
 		
 		$this->m1db = $this->load->database('M1', TRUE);
 	}	
-	
+	function cell_machines($cell=false)
+	{		
+			
+		$query = $this->db->query("SELECT machine_unique,machine_name,m_cell_m1name,case when m_cell_m1name IN ('TWIN','MILL3','MILL1','MILL5') then '5' when m_cell_m1name IN ('DECO','PLAS','MILL2','MILL4') THEN '4' ELSE '' END  AS totalmachine FROM machines LEFT OUTER JOIN machine_cells ON m_cell_id=machine_cell_id where m_cell_pit_show =1 and m_cell_m1name='".$cell."'");		
+				
+		return $query->result();
+		
+		
+	}
+	function material_list()
+	{
+		$query = $this->m1db->query("Select imrPartID as material from Parts
+Left Outer Join PartRevisions on IMRPARTID = IMPPARTID Left Outer Join PartClasses on IMPPARTCLASSID = IMCPARTCLASSID Left Outer Join LotNumbers on ABLPARTID = IMRPARTID AND
+ABLPARTREVISIONID = IMRPARTREVISIONID
+where uimrStockType = 'P' and ablPartBinID like 'S%'
+Group By imrPartID , uimcUoM ORDER BY imrpartid");
+		return $query->result();
+	}
 	function unschedule_jobs($cell,$machineid,$material_type,$materialstatus)
 	{
 		if(($machineid=='all')|| ($machineid=='')){$machine_id='';}
@@ -69,23 +86,6 @@ class Scheduler_model extends CI_Model {
 		return $ret;		
 	}
 
-	/* function material_startweekdate()
-	{
-		
-		$query = $this->m1db->query("Select imrPartID as material, CASE WHEN (SheetsOnHand - sheetsused) /CASE uimcUoM WHEN 'MM' THEN 87782 ELSE 3456 END <0 THEN 0 ELSE (SheetsOnHand - sheetsused) /CASE uimcUoM WHEN 'MM' THEN 87782 ELSE 3456 END END as SheetsOnHand, uimcUoM FROM (
-Select imrPartID , sum(imrSheetSizeX * imrSheetSizeY * ablQuantityOnHand) as SheetsOnHand, IMPPARTCLASSID from Parts
-Left Outer Join PartRevisions on IMRPARTID = IMPPARTID Left Outer Join LotNumbers on ABLPARTID = IMRPARTID AND
-ABLPARTREVISIONID = IMRPARTREVISIONID
-where uimrStockType = 'P' and ablPartBinID like 'S%'
-Group By imrPartID ,IMPPARTCLASSID)a
-Left Outer Join PartClasses on IMPPARTCLASSID = IMCPARTCLASSID
-OUTER apply( Select CAST(SUM(ujmmLength * ujmmWidth * jmmEstimatedQuantity) as float) as sheetsused from jobs Left Outer Join JobMaterials on JMMJOBID = JMPJOBID and JMMJOBASSEMBLYID = 0 where jmmPartID = imrPartID and not exists (Select * from parttransactions where imtJobid = jmpJobID and imrPartID = jmpPartID ) and exists (Select * from JobOperations WHERE JMOJOBID = JMPJOBID and JMOJOBASSEMBLYID = 0 and ujmobucketweek <= DATEADD(dd, 0 - (1 + 5 + DATEPART(dw, GETDATE())) % 7, GETDATE()) ) )B
-ORDER BY imrPartID");
-		return $query->result();
-		
-	} */
-	
-	
 	function add_jobsto_schedule()
 	{
 		

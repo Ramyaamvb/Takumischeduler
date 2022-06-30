@@ -21,8 +21,7 @@
 	<link rel="stylesheet"
           href="<?=base_url('assets/datatables/datatables.1.min.css');?>">
   
-  <link rel="stylesheet"
-  href="<?=base_url('assets/datatables/fixedColumns.dataTables.min.css');?>">
+  
   
   <link rel="stylesheet"
   href="<?=base_url('assets/datatables/select.dataTables.min.css');?>">
@@ -30,11 +29,8 @@
     <link rel="stylesheet"
 	          href="<?=base_url('assets/css/bootstrap.min.css');?>">
 	<link rel="stylesheet"
-	          href="<?=base_url('assets/css/custom.min.css?v='.constant('APP_VERSION'));?>">
-	
-	
-	<link href="<?=base_url('assets/css/jquery.ml-keyboard.css');?>" rel="stylesheet">
-	<link href="<?=base_url('assets/css/demo.css');?>" rel="stylesheet">
-			  
+	          href="<?=base_url('assets/css/custom.min.css?v='.constant('APP_VERSION'));?>">	
+	<link rel="stylesheet"
+	          href="<?=base_url('assets/css/custom.min.css?v='.constant('APP_VERSION'));?>">		  
    
 </head>

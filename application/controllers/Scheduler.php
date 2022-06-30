@@ -13,8 +13,7 @@ class Scheduler extends MY_Controller {
 		
 		$this->D['machines'] = $this->base->cell_machines();
 		
-		
-		
+		$this->D['materials'] = $this->scheduler->material_list();
 		
     }
 
@@ -27,27 +26,14 @@ class Scheduler extends MY_Controller {
 	public function schedule($getjobs=false)
 	{
 		$d = $this->D;	
-
+		
+		
+		
 		$d['v'] = 'scheduler';	
 					
 		$this->load->view('pages/template', $d);
 	}
 	
-	public function scheduledjobs()
-	{
-		$d = $this->D;		
-		
-		$d['v'] = 'scheduled';
-		
-		$d['cellname'] = $this->input->get('c');
-		
-		$d['mid'] = $this->input->get('mid');
-		
-		$this->D['machines'] = $this->scheduler->cell_machines();
-		
-		$this->load->view('pages/template', $d);
-			
-	}
 	
 	/**get the unschedule jobs**/
 	public function schedulefilter()
@@ -64,25 +50,6 @@ class Scheduler extends MY_Controller {
 		
 	}
 	
-	
-	
-	
-	
-	/** get all scheduled hours machine**/
-	function getscheduledhours()
-	{
-		$row = $this->scheduler->getscheduledhours();
-		print json_encode($row);
-		exit;
-	}
-	
-	/* get all scheduled hours cell*/
-	function scheduledhours_cell()
-	{
-		$row = $this->scheduler->scheduledhours_cell();
-		print json_encode($row);
-		exit;
-	}
 	
 	/** open job card - each job **/
 	function open_jobcard()

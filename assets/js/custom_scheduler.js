@@ -3,16 +3,19 @@
 document.getElementById("set_height").style.height = $(window).height()-70;
 var getUrl = window.location;
 var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+const capitalizeFirstLetter = ([ first, ...rest ], locale = navigator.language) =>
+  first.toLocaleUpperCase(locale) + rest.join('')
 $(".bucket_filter").change(function(e) {
 		event.preventDefault();
         selectcellmachine();
     });
-	$('.bucket_filter').each(function(e){		
+	$('#cell_select').each(function(e){		
         selectcellmachine();
     });
 	function selectcellmachine()
-	{
-		var filter = $(".bucket_filter :selected").val();		
+	{		
+		$('.header').html('<h4 class="m-0">'+capitalizeFirstLetter($('#cell_select').val().toLowerCase())+' Cell</h4>')
+		var filter = $("#cell_select :selected").val();		
 		var SearchFieldsTable = $(".bucket tbody");		
 		var trows = SearchFieldsTable[0].rows;
         if (filter == 'all') {
@@ -59,48 +62,9 @@ $(".bucket_filter").change(function(e) {
 /**Schedule jobs 14/12**/
 var test = false;
 
-$('.schedulejobs').each(function(){
-	scheduledjobs_update();
-})
-function scheduledjobs_update()
-{
-	$.ajax({
-		type: "POST",
-		url: baseUrl+'/getscheduledhours/',
-		data: {
-			
-		},
-		dataType:'json',
-		success: function(res){		
-			var total=0;
-			$.each(res, function(i, res){	
-				var week = res.bucketweek.split('-');	
-				if(($('.latehours'+week[1]+'_'+res.machine_unique).attr('data-unique')) == res.machine_unique)
-					if(res.latehours == '')	
-						var latehours = 0;					
-					else
-						var latehours = res.latehours;					
-					total = parseFloat(res.latehours) + parseFloat(res.futurehours) + parseFloat(res.cwhours);					
-					$('.totalhours'+week[1]+'_'+res.machine_unique).html('-');	
-					$('.latehours'+week[1]+'_'+res.machine_unique).html('-');
-					$('.currenthours'+week[1]+'_'+res.machine_unique).html('-');
-					$('.futurehours'+week[1]+'_'+res.machine_unique).html('-');					
-					$('.totalhours'+week[1]+'_'+res.machine_unique).html(parseFloat(total).toFixed(2));	
-					$('.latehours'+week[1]+'_'+res.machine_unique).html(parseFloat(latehours).toFixed(2));
-					$('.currenthours'+week[1]+'_'+res.machine_unique).html(parseFloat(res.futurehours).toFixed(2));
-					$('.futurehours'+week[1]+'_'+res.machine_unique).html(parseFloat(res.cwhours).toFixed(2));	
-			})							
-		},
-		error: function() {
-		}
-	})
-}
-
-
-
 function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
 {	
-	
+	$('.headerforrightpanel').html('Unscheduled Jobs - '+capitalizeFirstLetter($('#cell_select').val().toLowerCase()));
 	table = $('#unschedule').DataTable();	 
 	//table.clear().destroy();
 	var numberOfRows = Math.floor(window.innerHeight);	
@@ -110,7 +74,7 @@ function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
 	
 	DT1 = $("#unschedule").DataTable({
 	"destroy": true,		
-		"scrollY": "65vh",		
+		"scrollY": "67vh",		
 		"scrollX":     true,
 		"scrollCollapse": true,
 		"paging": false,		
@@ -133,9 +97,9 @@ function get_unschedule_jobs(cell,machineid,material_status,materialtype,reload)
 		"oLanguage": {
 		   "sInfo" : " Total _TOTAL_ jobs",// text you want show for info section
 		},
-		fixedColumns:   {
+		/* fixedColumns:   {
             left: 2
-        },	
+        },	 */
 		select: {
             style:    'multi',
             
@@ -580,8 +544,7 @@ function changemachine(data)
 	})	
 }
 
-$("body").on('click', '.update_machine', function(e) {	
-	
+$("body").on('click', '.update_machine', function(e) {		
 	e.preventDefault();	
 	var table = $('#unschedule').DataTable();
 		var cellsSelected = table.rows({ selected: true }).data();
@@ -595,23 +558,33 @@ $("body").on('click', '.update_machine', function(e) {
 				  
 				};		
 		});	
-	$.ajax({
-		type: "POST",
-		url: baseUrl+'/updatemachine/',
-		data: {
-			ids:ids,workcenter:$('.select-celltext').val(),machine:$('.select-text').val(),processid:$('.select-text').find(':selected').attr('data-processid'),processdesc:$('.select-text').find(':selected').attr('data-processdesc')
-		},
-		dataType:'json',
-		success: function(res){	
-			
-			$("#machineupdateModal").modal('hide');			
-			var cell = $('#cell_select').val();	
-			var machineid =$('#machines_select').val();
-			var material_status =$('#material_status').val();	
-			var materialtype=$('#materialtype').val();			
-			get_unschedule_jobs(cell,machineid,material_status,materialtype,1); 
-		}
-	})
+	
+	if(ids.length > 0)
+	{
+		$.ajax({
+			type: "POST",
+			url: baseUrl+'/updatemachine/',
+			data: {
+				ids:ids,workcenter:$('.select-celltext').val(),machine:$('.select-text').val(),processid:$('.select-text').find(':selected').attr('data-processid'),processdesc:$('.select-text').find(':selected').attr('data-processdesc')
+			},
+			dataType:'json',
+			success: function(res){	
+				
+				$("#machineupdateModal").modal('hide');			
+				var cell = $('#cell_select').val();	
+				var machineid =$('#machines_select').val();
+				var material_status =$('#material_status').val();	
+				var materialtype=$('#materialtype').val();			
+				get_unschedule_jobs(cell,machineid,material_status,materialtype,1); 
+			}
+		})
+	}
+	else
+	{
+		alert('Please select atleast one Job to change')
+		$('#machineupdateModal').modal('hide');
+	}
+	/*  */
 	
 })
 $('.hidemachineupdate').click(function(){
@@ -728,7 +701,7 @@ $('.unschedule_udpate').click(function(){
 			$('.sheet_null').html('0');		
 			$('.sheet_null').attr('data-sheetused',0);		
 							
-			scheduledjobs_update();				
+			//scheduledjobs_update();				
 			unschedulefilter();	
 		}
 	});
@@ -836,7 +809,7 @@ function updatebucketweek(ids,mids)
 			//material_used_test(mids);
 			//material_onhand_test(mids);
 			
-			scheduledjobs_update();
+			//scheduledjobs_update();
 			$('.machine_hrs_calc').html('');
 			
 			$('.selectAll').prop('checked',false);
