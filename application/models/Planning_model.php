@@ -41,133 +41,7 @@ class Planning_model extends CI_Model {
 		
 	}
 	function unplanned_jobs($cell)
-	{
-		/* $query = $this->m1db->query("SELECT DISTINCT xaquniqueid,rtrim(cmoname) as Customer, jmoJobOperationID,
-									rtrim(omlpartid)as PartID,CASE WHEN jmpjobid is not NULL THEN rtrim(jmpjobid) WHEN omdDeliveryType = 1 THEN 'Make To Order' WHEN omdDeliveryType = 2 THEN 'Pull From Stock' WHEN
-									 omdDeliveryType = 4 THEN 'Kit Part' WHEN omdDeliveryType = 5 THEN 'Purchase to Order' ELSE '' END as jmpJobID ,rtrim(omlpartshortdescription) as PartDescription ,
-									 (omddeliveryquantity-omdquantityshipped) AS 'remaining_Quantity',
-									jmpscheduledstartdate ,uomdcustomerdeliverydate,
-									workcenter, RTRIM(machine) AS MACHINE, 
-									case when workcenter='MILL3' then ((omddeliveryquantity-omdquantityshipped)*cycletime)/60 when workcenter In ('MILL1','DECO','TWIN','MILL2','MILL4','MILL5') then (((omddeliveryquantity-omdquantityshipped)*cycletime)/60)+1 end as
-cycletime,ujmporiginalprodweek,ujmpcurrentprodweek,
-									jmmpartshortdescription,jmmpartid,
-									CASE
-									WHEN rmlreceiptid IS NOT NULL THEN 'Material recieved on ' + rmlreceiptdate
-									WHEN pmlpurchaseorderid IS NOT NULL THEN 'Material PO:' + pmlpurchaseorderid + ' due on ' + pmlduedate
-									WHEN jmmpurchaseorderid IS NOT NULL
-									AND jmmpurchaseorderid <> '' THEN jmmpurchaseorderid
-									ELSE 'No material ordered'
-									END AS [MatStatus],
-									rtrim(ujmpNestingJobID) as ujmpNestingJobID,
-									omporderdate,
-								
-
-									CASE
-									WHEN ujmpprogrammingrequired <> -1
-									OR ujmpprogramcomplete = -1 THEN 'Program OK'
-									ELSE 'Program Required'
-									END AS program
-									FROM salesorders
-									LEFT OUTER JOIN salesorderlines
-									ON omlsalesorderid = ompsalesorderid
-									LEFT OUTER JOIN salesorderdeliveries
-									ON omdsalesorderid = omlsalesorderid
-									AND omdsalesorderlineid = omlsalesorderlineid
-									LEFT OUTER JOIN parts
-									ON imppartid = omlpartid
-									LEFT OUTER JOIN
-									(
-									SELECT omjsalesorderid,
-									omjsalesorderlineid,
-									omjsalesorderdeliveryid,
-									Max( omjsalesorderjoblinkid) AS thelinkid
-									FROM salesorderjoblinks
-									GROUP BY omjsalesorderid,
-									omjsalesorderlineid,
-									omjsalesorderdeliveryid) AS tcl
-									ON omjsalesorderid = ompsalesorderid
-									AND omjsalesorderlineid = omlsalesorderlineid
-									AND omjsalesorderdeliveryid = omdsalesorderdeliveryid
-									LEFT OUTER JOIN salesorderjoblinks AS omjx
-									ON omjx.omjsalesorderid = omdsalesorderid
-									AND omjx.omjsalesorderlineid = omdsalesorderlineid
-									AND omjx.omjsalesorderdeliveryid = omdsalesorderdeliveryid
-									AND omjx.omjsalesorderjoblinkid = thelinkid
-									LEFT OUTER JOIN jobs
-									ON jmpjobid = omjjobid
-									LEFT OUTER JOIN jobmaterials
-									ON jmmuniqueid =
-									(
-									SELECT TOP 1
-									jmmuniqueid
-									FROM jobmaterials
-									WHERE jmmjobid = jmpjobid
-									AND jmmjobassemblyid = 0
-									ORDER BY jmmjobmaterialid DESC )
-									LEFT OUTER JOIN
-									(
-									SELECT smljobid,
-									Max( smlcreateddate) AS smpshipdate
-									FROM shipmentlines
-									GROUP BY smljobid) AS a
-									ON smljobid = jmpjobid
-									
-									LEFT OUTER JOIN
-									(
-									SELECT pmljobid,
-									Rtrim(Max( pmlpurchaseorderid )) AS pmlpurchaseorderid ,
-									Format(Max( pmlduedate ),'dd/MM/yyyy') AS pmlduedate ,
-									Max(rmlreceiptid) AS rmlreceiptid ,
-									Format(Max(rmlreceiptdate),'dd/MM/yyyy') AS rmlreceiptdate
-									FROM purchaseorderlines
-									LEFT OUTER JOIN receiptlines
-									ON rmlpurchaseorderid = pmlpurchaseorderid
-									AND rmlpurchaseorderlineid = pmlpurchaseorderlineid
-									WHERE pmljobtype = 1
-									GROUP BY pmljobid ) AS c
-									ON pmljobid = jmpjobid
-									
-									LEFT OUTER JOIN
-									(
-									SELECT jmojobid,xaquniqueid,jmoJobOperationID,
-									Max( xaqdescription ) AS machine,
-									MIN( xaqWorkCenterID ) AS workcenter,
-									( jmoProductionStandard) as cycletime
-									FROM joboperations
-									LEFT OUTER JOIN workcentermachines
-									ON jmoworkcenterid = xaqworkcenterid
-									AND jmoworkcentermachineid = xaqworkcentermachineid
-									WHERE jmojobassemblyid = 0
-									AND jmoworkcenterid in ('MILL1','DECO','TWIN','MILL2','MILL3','MILL4','MILL5')
-									GROUP BY jmojobid,xaquniqueid,jmoProductionStandard,jmoJobOperationID) AS e
-									ON jmpjobid = jmojobid
-									
-									INNER JOIN organizations
-									ON cmoorganizationid = ompcustomerorganizationid
-								
-									
-									WHERE ( omdShippedcomplete <> -1
-									)
-									AND ( uomdCustomerDeliveryDate < DATEADD(wk,12,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) ))
-									AND ompclosed <> -1
-									AND omlclosed <> -1
-									AND omdclosed <> -1and cmoName <> 'Takumi'
-									and cmoName <> 'Takumi Treatment Line'
-									AND ompcustomerpo NOT LIKE 'SH100%'
-									AND (
-									imppartgroupid <> 'GMRS'
-									OR imppartgroupid IS NULL) and workcenter='".$cell."' AND NOT EXISTS(
-									SELECT TOP 1
-									*
-									FROM timecardlines
-									WHERE lmljobid IN
-									(
-									SELECT omjjobid
-									FROM salesorderjoblinks
-									WHERE omjsalesorderid = omdsalesorderid
-									AND omjsalesorderlineid = omlsalesorderlineid)
-									ORDER BY lmlcreateddate DESC )"); */
-			
+	{		
 		$query = $this->m1db->query("SELECT DISTINCT xaquniqueid,rtrim(cmoname) as Customer, jmoJobOperationID,rtrim(omlpartid)as PartID,CASE WHEN jmpjobid is not NULL THEN rtrim(jmpjobid) WHEN omdDeliveryType = 1 THEN 'Make To Order' WHEN omdDeliveryType = 2 THEN 'Pull From Stock' WHEN omdDeliveryType = 4 THEN 'Kit Part' WHEN omdDeliveryType = 5 THEN 'Purchase to Order' ELSE '' END as jmpJobID ,
 rtrim(omlpartshortdescription) as PartDescription,
 (omddeliveryquantity-omdquantityshipped) AS 'remaining_Quantity',jmpscheduledstartdate ,uomdcustomerdeliverydate,workcenter,RTRIM(machine) AS MACHINE,case when workcenter='MILL3' THEN 
@@ -198,14 +72,17 @@ outer apply (SELECT TOP 1 max( uajPartBinID ) as stockBin, max(uajIssuedToJob) a
 outer apply (Select top 1 Format((rmlreceiptdate),'dd/MM/yyyy') AS rmlreceiptdate,rmlReceiptID from ReceiptLines where rmlJobID = jmpJobID and rmlJobAssemblyID = 0 )B 
 outer apply (Select top 1 pmlpurchaseorderid,jmmpartshortdescription,jmmReceivedComplete,jmmQuantityPerAssembly,jmmPartID, jmmPurchaseOrderID, Format(pmlduedate,'dd/MM/yyyy') as pmlDueDate from jobMaterials Left Outer Join PurchaseOrderLines on PMLJOBID = JMMJOBID and pmlPurchaseOrderID = jmmPurchaseOrderID where jmmJobID = jmpJobID and jmmJobAssemblyID = 0 )C 
 
-OUTER apply (SELECT jmojobid,xaquniqueid,jmoJobOperationID,( xaqdescription ) AS machine,( xaqWorkCenterID ) AS workcenter,( jmoProductionStandard) as cycletime FROM joboperations
+OUTER apply (SELECT jmojobid,xaquniqueid,jmoJobOperationID,( xaqdescription ) AS machine,( xaqWorkCenterID ) AS workcenter,( jmoProductionStandard) as cycletime,jmoQuantityComplete,jmoProductionComplete FROM joboperations
 								LEFT OUTER JOIN workcentermachines ON jmoworkcenterid = xaqworkcenterid AND jmoworkcentermachineid = xaqworkcentermachineid WHERE jmojobassemblyid = 0 AND 
 								jmoworkcenterid in ('MILL1','DECO','TWIN','MILL2','MILL3','MILL4','MILL5') and jmpjobid = jmojobid
 								) AS u
-WHERE ( omdShippedcomplete <> -1	) AND ( uomdCustomerDeliveryDate < DATEADD(wk,22,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) )) AND ompclosed <> -1 AND omlclosed <> -1
+WHERE jmpProductionComplete <> -1 and jmoQuantityComplete = 0 and jmoProductionComplete <> -1 and jmpQuantityShipped = 0 and ( omdShippedcomplete <> -1	) AND ( uomdCustomerDeliveryDate < DATEADD(wk,22,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) )) AND ompclosed <> -1 AND omlclosed <> -1
 AND omdclosed <> -1   and cmoName <> 'Takumi' and cmoName <> 'Takumi Treatment Line' AND ompcustomerpo NOT LIKE 'SH100%' AND (imppartgroupid <> 'GMRS' OR imppartgroupid IS NULL) and workcenter='".$cell."' 
 AND NOT EXISTS( SELECT TOP 1 * FROM timecardlines WHERE lmljobid IN(SELECT omjjobid	FROM salesorderjoblinks	WHERE omjsalesorderid = omdsalesorderid AND omjsalesorderlineid = omlsalesorderlineid)
-					ORDER BY lmlcreateddate DESC ) ");
+					ORDER BY lmlcreateddate DESC )
+and ltrim(ujmpcurrentprodweek) = '' 
+and exists (Select omjjobid from SalesOrderJobLinks left outer join SalesOrderDeliveries on OMDSALESORDERID = OMJSALESORDERID and OMDSALESORDERLINEID = OMJSALESORDERLINEID Left Outer Join SalesOrderLines on OMDSALESORDERID = OMLSALESORDERID and OMDSALESORDERLINEID = OMLSALESORDERLINEID Left Outer Join SalesOrders on OMDSALESORDERID = OMPSALESORDERID 
+		where omdShippedComplete <> -1 and omdClosed <> -1 and omlClosed <> -1 and ompClosed <> -1 and omjJobID = jmpjobid   )");
 			return $query->result();
 	}
 	function machines_weekdata()

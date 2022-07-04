@@ -263,7 +263,8 @@ function gethrscommitweekjob(cell,machine='',week=false)
 		"paging": false,		
         //"processing": false, // for show progress bar        
         //"filter": true, // this is for disable filter (search box)        
-		//"order": [],		
+		//"order": [],	
+		
 		"columnDefs": [
 			{
 					"targets": 1, // your part				
@@ -271,7 +272,7 @@ function gethrscommitweekjob(cell,machine='',week=false)
 			},
             {
 					"targets": 2, // your part				
-					"width": "20%"
+					"width": "20%",					
 			},
 			{
 					"targets": 3, // your part				

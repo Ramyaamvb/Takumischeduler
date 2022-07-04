@@ -201,7 +201,7 @@ table.setdividerheight td
 					</style>
 						<!--<table id="unschedule"  >-->
 						<table id="unschedule" clientidmode="Static" class="unschedule tablebody display nowrap hover w-100" style="width:100%">
-						<thead class="bg-dark">
+						<thead class="bg-dark text-light">
 							<tr class="gridStyle">
 								<th></th>								
 								<th style="width:90px">PartID</th>
