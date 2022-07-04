@@ -55,13 +55,7 @@ function get_unplannedjobs(cell,machineid,material_status,materialtype,reload)
         //"processing": false, // for show progress bar        
         //"filter": true, // this is for disable filter (search box)        
 		//"order": [],		
-		"columnDefs": [
-			{
-                target:2,
-                visible: false
-            },
-			
-        ],
+		
 		"responsive": false,
 		"oLanguage": {
 		   "sInfo" : " Total _TOTAL_ jobs",// text you want show for info section
@@ -177,6 +171,7 @@ function getslectedrows()
 	  (m, {uniqueid, prodhrs}) => m.set(uniqueid,(m.get(uniqueid) || 0) + parseFloat(prodhrs)), new Map
 	), ([uniqueid, prodhrs]) => ({uniqueid,prodhrs}));  
 	
+	console.log(res);
 	return res;
 }
 

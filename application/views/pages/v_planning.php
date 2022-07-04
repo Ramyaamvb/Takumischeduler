@@ -203,7 +203,7 @@ table.setdividerheight td
 						<table id="unschedule" clientidmode="Static" class="unschedule tablebody display nowrap hover w-100" style="width:100%">
 						<thead class="bg-dark text-light">
 							<tr class="gridStyle">
-								<th></th>								
+								<th style="display:none"></th>								
 								<th style="width:90px">PartID</th>
 								<th style="width:90px">JobID/Ope.ID</th>								
 								<th>PartDescription</th>
@@ -215,15 +215,15 @@ table.setdividerheight td
 								<th>Machine</th>
 								<th>Cycle Time</th>	
 								<th>Customer</th>		
-								<th>Original Prod. Week</th>
-								<th>Current Prod. Week</th>								
+								<th style="display:none">Original Prod. Week</th>
+								<th style="display:none">Current Prod. Week</th>								
 								<th>Material ID</th>
 								<th>Material PartDes.</th>
 								<th>Mat Status.</th>
 								<th>Nesting Jobid</th>								
 								<th>SalesOrderdate</th>
 								<th>Program</th>
-								<th>Xaquniqueid</th>
+								<th style="display:none">Xaquniqueid</th>
 							</tr>			
 							<!--<tr>
 								<td></td>								
@@ -252,26 +252,26 @@ table.setdividerheight td
 						<tbody>
 							<?php foreach($rows as $v) { ?>
 							<tr class="<?=($v->material=='GREEN')?'text-success':'';?>" style="font-weight:<?=($v->material=='GREEN')?'700':'';?>">
-								<td></td>
+								<td style="display:none"></td>
 								<td><?=$v->PartID;?></td>
 								<td><?=$v->jmpJobID.' / '.$v->jmoJobOperationID;?></td>
 								<td><?=substr($v->PartDescription,0,10);?></td>
 								<td><?=round($v->remaining_Quantity,0);?></td>
-								<td><?=date("d/m/Y", strtotime($v->jmpscheduledstartdate));?></td>
-								<td><?=date("d/m/Y", strtotime($v->uomdcustomerdeliverydate));?></td>
+								<td><?=date("Y-m-d", strtotime($v->jmpscheduledstartdate));?></td>
+								<td><?=date("Y-m-d", strtotime($v->uomdcustomerdeliverydate));?></td>
 								<td data-name="workcenter"><?=$v->workcenter;?></td>		
 								<td><?=$v->MACHINE;?></td>		
 								<td><?=round($v->cycletime,2);?></td>		
 								<td><?=$v->Customer;?></td>		
-								<td><?=($v->ujmporiginalprodweek!=0)?'W-'.$v->ujmporiginalprodweek:'';?></td>		
-								<td><?=($v->ujmpcurrentprodweek!=0)?'W-'.$v->ujmpcurrentprodweek:'';?></td>										
+								<td style="display:none"><?=($v->ujmporiginalprodweek!=0)?'W-'.$v->ujmporiginalprodweek:'';?></td>		
+								<td style="display:none"><?=($v->ujmpcurrentprodweek!=0)?'W-'.$v->ujmpcurrentprodweek:'';?></td>										
 								<td><?=$v->jmmpartid;?></td>		
 								<td><?=$v->jmmpartshortdescription;?></td>		
 								<td><?=$v->MatStatus;?></td>		
 								<td><?=$v->ujmpNestingJobID;?></td>		
 								<td><?=date("d/m/Y", strtotime($v->omporderdate));?></td>
 								<td><?=$v->program;?></td>		
-								<td><?=$v->xaquniqueid;?></td>			
+								<td style="display:none"><?=$v->xaquniqueid;?></td>			
 							</tr>
 							<?php } ?>
 						</tbody></table>

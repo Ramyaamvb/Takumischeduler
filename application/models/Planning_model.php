@@ -27,7 +27,7 @@ class Planning_model extends CI_Model {
 									where ujmpCurrentProdWeek <>'' and not exists (SELECT TOP 1 * FROM TimecardLines
 									WHERE lmljobid = jmpjobid) 
 									AND jmoworkcenterid='".$cell."' and xaquniqueid = '{".$rows->machine_unique."}'  and ujmpcurrentprodweek < 22
-									and uomdCustomerDeliveryDate < DATEADD(wk,12,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) )  group by jmoworkcenterid");
+									and uomdCustomerDeliveryDate < DATEADD(wk,22,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) )  group by jmoworkcenterid");
 									
 			if(isset(($query->row())->cycletime))
 				$rows->backloghrs = ($query->row())->cycletime;
@@ -106,7 +106,7 @@ left outer join joboperations on jmpjobid=jmojobid
 LEFT OUTER JOIN WorkCenterMachines on xaqWorkCenterMachineID = jmoWorkCenterMachineID AND jmoworkcenterid=xaqWorkCenterID
 LEFT OUTER JOIN SalesOrderJobLinks ON omjJobID = jmpjobid
 LEFT OUTER JOIN SalesOrderDeliveries ON omjSalesOrderID =omdSalesOrderID AND omjSalesOrderLineID = omdSalesOrderLineID AND omjSalesOrderDeliveryID = omdSalesOrderDeliveryID  
-WHERE ujmpCurrentProdWeek > '18' AND jmoworkcenterid in ('MILL1','DECO','TWIN','MILL2','MILL3','MILL4','MILL5') AND not exists (Select * from TimecardLines where lmlJobID = jmpJobID and lmlJobOperationID = jmoJobOperationID) and uomdCustomerDeliveryDate < DATEADD(wk,12,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) ) GROUP BY xaquniqueid,ujmpCurrentProdWeek)
+WHERE ujmpCurrentProdWeek > '18' AND jmoworkcenterid in ('MILL1','DECO','TWIN','MILL2','MILL3','MILL4','MILL5') AND not exists (Select * from TimecardLines where lmlJobID = jmpJobID and lmlJobOperationID = jmoJobOperationID) and uomdCustomerDeliveryDate < DATEADD(wk,22,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) ) GROUP BY xaquniqueid,ujmpCurrentProdWeek)
 x pivot(MAX(cycletime) FOR week IN ([w".date('W')."],[w".(date('W')+1)."],[w".(date('W')+2)."],[w".(date('W')+3)."],[w".(date('W')+4)."],[w".(date('W')+5)."],[w".(date('W')+6)."],[w".(date('W')+7)."]))as piv");
 		
 
@@ -185,7 +185,7 @@ LEFT OUTER JOIN machine_cells ON m_cell_id=machine_cell_id where m_cell_pit_show
 									where ujmpCurrentProdWeek <>'' and not exists (SELECT TOP 1 * FROM TimecardLines
 									WHERE lmljobid = jmpjobid) 
 									AND jmoworkcenterid='".$_POST['cell']."' ".$week." ".$machine."
-									and uomdCustomerDeliveryDate < DATEADD(wk,12,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) )  ORDER BY ujmpCurrentProdWeek desc");	
+									and uomdCustomerDeliveryDate < DATEADD(wk,22,DATEADD(dd, 7-(DATEPART(dw, GETDATE())), GETDATE()) )  ORDER BY ujmpCurrentProdWeek desc");	
 									
 	$row =$query->result();
 	
